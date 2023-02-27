@@ -39,6 +39,10 @@ def index():
     products = load_inventory()
     return render_template('home.html', products=products)
 
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
 # @app.route('/product/add', methods=['GET', 'POST'])
 # def add_product():
 #     if request.method == 'POST':
