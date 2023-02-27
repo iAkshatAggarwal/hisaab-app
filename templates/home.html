@@ -1,1 +1,53 @@
-{% extends base.html %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hisaab</title>
+    {% include 'bootstrap.html' %}
+  </head>
+  <body>
+    {% include 'nav.html' %}
+    <div class="container">
+      <h1 class="text-center mt-2 mb-4">
+        Hisaab
+      </h1>
+      <div class="row" style="margin-bottom:32px">
+        <div class="col-md-6">
+      <p class="lead">
+        At Hisaab, we’re on a mission to build the most highly reputed accounting and financial analysis platform in the world, and we’re building it completely online. Our flagship data science program helps working professionals with a background in programming or analytics make a career transition to data science. We also offer several free beginner-friendly courses and have a fast-growing community of 200,000+ users.
+      </p>
+        </div>
+        <div class="d-none d-md-block col-md-6">
+          
+        </div>
+      </div>
+      <h2 class="text-center mt-2 mb-4">Open Positions</h2>
+      <div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Product Name</th>
+              <th scope="col">Price</th>
+              <th scope="col">Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+            <tr>
+              <th scope="col">{{product['id']}}</th>
+              <th scope="col">{{product['name']}}</th>
+              <th scope="col">{{product['price']}}</th>
+              <th scope="col">{{product['qty']}}</th>
+            </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+      </div>
+      <div class="text-center">
+      <a class="btn btn-primary btn-lg" href="mailto:hello@jovian.ai?subject=Question%20about%20Job%20Opernings&body=My%20name%3A%20%3Cyour%20name%20here%3E%0D%0A%0D%0AMy%20questions%3A%20%3Center%20question%20here%3E%0D%0A">Contact Us</a>
+      </div>
+    </div>
+    {% include 'footer.html' %}
+    {% include 'script.html' %}
+  </body>
+</html>
