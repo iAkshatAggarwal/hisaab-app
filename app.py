@@ -1,26 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+# from flask_sqlalchemy import SQLAlchemy
 import datetime
 import pandas as pd
 from sklearn.linear_model import LinearRegression
-from database import engine
-from sqlalchemy import text
+from database import load_inventory
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookkeeping.db'
-db = SQLAlchemy(app)
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookkeeping.db'
+# db = SQLAlchemy(app)
 
-class Product(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False)
-    price = db.Column(db.Float, nullable=False)
+# class Product(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(50), nullable=False)
+#     price = db.Column(db.Float, nullable=False)
 
-class Sale(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    product = db.relationship('Product', backref=db.backref('sales', lazy=True))
-    date = db.Column(db.Date, nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
+# class Sale(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+#     product = db.relationship('Product', backref=db.backref('sales', lazy=True))
+#     date = db.Column(db.Date, nullable=False)
+#     quantity = db.Column(db.Integer, nullable=False)
 
 def predict_growth():
     sales_data = pd.read_sql_table('sale', con=db.engine)
@@ -37,7 +36,7 @@ def predict_growth():
 
 @app.route('/')
 def index():
-    products = Product.query.all()
+    products = load_inventory()
     return render_template('index.html', products=products)
 
 @app.route('/product/add', methods=['GET', 'POST'])
