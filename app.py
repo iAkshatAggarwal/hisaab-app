@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 import datetime
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from database import engine
+from sqlalchemy import text
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookkeeping.db'
