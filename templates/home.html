@@ -5,7 +5,16 @@
     {% include 'bootstrap.html' %}
   </head>
   <body>
-    {% include 'nav.html' %}
+    <nav class="navbar shadow-sm fixed-top bg-white">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+          <img src="/static/logo.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+          Hisaab
+        </a>
+        <a type="button" class="btn btn-success" href="/dashboard">Get Started</a>
+      </div>
+    </nav>
+    <div style="height:56px"></div>
     <div class="container">
       <h1 class="text-center mt-2 mb-4">
         Hisaab
