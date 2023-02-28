@@ -17,3 +17,12 @@ def load_inventory():
         row_dict = dict(zip(result.keys(), row))
         products.append(row_dict)
     return products
+
+def load_sales():
+  with engine.connect() as conn:
+    response = conn.execute(text("SELECT * from sales"))
+    sales = []
+    for row in response.fetchall():
+        row_dic = dict(zip(response.keys(), row))
+        sales.append(row_dic)
+    return sales

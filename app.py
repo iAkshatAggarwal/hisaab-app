@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import datetime
 # import pandas as pd
 # from sklearn.linear_model import LinearRegression
-from database import load_inventory
+from database import load_inventory, load_sales
 
 app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookkeeping.db'
@@ -47,6 +47,11 @@ def dashboard():
 def show_products():
   products = load_inventory()
   return render_template('products.html', products=products)
+
+@app.route('/orders')
+def show_sales():
+  sales = load_sales()
+  return render_template('sales.html', sales=sales)
 
 # @app.route('/product/add', methods=['GET', 'POST'])
 # def add_product():
