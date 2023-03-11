@@ -2,16 +2,18 @@
 <html lang="en">
   <head>
     <title>Products</title>
+    
     {% include 'bootstrap.html' %}
     <style>
       .sidebar #products {
-      color: #2470dc;
-    }
+        color: #2470dc;
+      }
     </style>
+    
     <link href="/static/css/dashboard.css" rel="stylesheet">
   </head>
+  
   <body>
-    
     {% include 'dash_nav.html' %} 
     
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
@@ -28,9 +30,9 @@
           </button>
         </div>
       </div>
-
+      <!-- Chart -->
       <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
-
+      <!-- Tables -->
       <h2>Inventory</h2>
       <div class="table-responsive">
         <table class="table table-striped table-sm">
@@ -57,7 +59,37 @@
     </main>
       </div>
     </div>
+    
     {% include 'script.html' %}
-    <script src="/static/js/dashboard.js"></script>
+    <script>
+        feather.replace({ 'aria-hidden': 'true' })
+        // Parse the data embedded in the HTML template
+        var data = JSON.parse('{{ data | tojson | safe }}');
+
+        // Create the chart using Chart.js
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: 'Data',
+                    data: data.values,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
   </body>
 </html>

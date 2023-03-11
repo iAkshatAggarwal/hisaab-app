@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 # from flask_sqlalchemy import SQLAlchemy
 import datetime
 # import pandas as pd
@@ -42,11 +42,21 @@ def index():
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
-
+  
 @app.route('/products')
 def show_products():
   products = load_inventory()
-  return render_template('products.html', products=products)
+  #For chart
+  labels=[]
+  values=[]
+  for row in products:
+    labels.append(row['name'])
+    values.append(row['qty'])
+  data = {'labels':labels, 'values':values}
+  
+  return render_template('products.html',
+                         products=products,
+                         data=data)
 
 @app.route('/orders')
 def show_sales():
