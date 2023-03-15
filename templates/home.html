@@ -3,17 +3,21 @@
   <head>
     <title>Hisaab</title>
     {% include 'bootstrap.html' %}
+    <style>
+      .card:hover {
+      background-color: #cce6ff; 
+      border-color: #007bff; 
+    }
+    </style>
+    <link href="/static/css/home.css" rel=stylesheet>
   </head>
   <body>
     <!-- Nav bar -->
     <nav class="navbar shadow-sm fixed-top bg-white">
       <div class="container-fluid">
         <a class="navbar-brand"  href="/">
-          <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill="currentColor" class="bi bi-coin" viewBox="0 0 16 16">
-  <path d="M5.5 9.511c.076.954.83 1.697 2.182 1.785V12h.6v-.709c1.4-.098 2.218-.846 2.218-1.932 0-.987-.626-1.496-1.745-1.76l-.473-.112V5.57c.6.068.982.396 1.074.85h1.052c-.076-.919-.864-1.638-2.126-1.716V4h-.6v.719c-1.195.117-2.01.836-2.01 1.853 0 .9.606 1.472 1.613 1.707l.397.098v2.034c-.615-.093-1.022-.43-1.114-.9H5.5zm2.177-2.166c-.59-.137-.91-.416-.91-.836 0-.47.345-.822.915-.925v1.76h-.005zm.692 1.193c.717.166 1.048.435 1.048.91 0 .542-.412.914-1.135.982V8.518l.087.02z"/>
-  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-  <path d="M8 13.5a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0 .5A6 6 0 1 0 8 2a6 6 0 0 0 0 12z"/>
-          </svg><b>
+          <img src="/static/analytics.png" class="img-fluid animated" alt="" width="35" height="35">
+          <b>
             Hisaab
           </b>
         </a>
@@ -22,153 +26,149 @@
     </nav>
     <div style="height:56px"></div>
     <!-- Main body -->
-    <div class="container">
-<!--       <h1 class="text-center mt-2 mb-4">
-        Hisaab
-      </h1> -->
-      <div class="row mt-5" style="margin-bottom:32px">
-        <div class="col-md-7">
-          <h1 style="font-size:4rem">Business Analytics just became easy.</h1>
-          <p class="lead">
-            At Hisaab, we’re on a mission to build the most highly reputed accounting and financial analysis platform in the world, and we’re building it completely online. Our flagship data science program helps working professionals with a background in programming or analytics make a career transition to data science.
-          </p>
-        </div>
-        <div class="d-none d-md-block col-md-5">
-          <img src="/static/fin.jpeg" style="height:320px;border-radius:4px;"/>
+    <section id="hero" class="d-flex align-items-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 d-flex flex-column justify-content-center pt-4 pt-lg-0 order-2 order-lg-1" data-aos="fade-up" data-aos-delay="200">
+          <h1>Business Analytics just became easy</h1>
+          <h2 class="pb-0 mb-5">Data is the new oil of the 21st century, analytics is the combustion engine.</h2>
+            <div class="d-flex justify-content-center justify-content-lg-start">
+            <a href="#why-us" class="btn-get-started scrollto">Know more</a>
+            </div>
+          </div>
+          <div class="col-lg-6 order-1 order-lg-2 hero-img" data-aos="zoom-in" data-aos-delay="200">
+          <img src="/static/vector.png" class="img-fluid animated" alt="">
+          </div>
         </div>
       </div>
-      <div class="row row-cols-1 row-cols-md-3 mb-3 text-center">
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <h1 class="card-title pricing-card-title">4</h1>
-              <h2 class="text-muted fw-light">WEEKS</h2>
-              <ul class="list-unstyled mt-3 mb-4">
-                <li>to create enterprise level dashboard</li>
-              </ul>
+    </section>
+    
+    <section id="why-us" class="why-us section">
+      <div class="container" data-aos="fade-up">
+        <div class="row">
+          <div class="section-title">
+            <h2>Why <strong>Hisaab?</strong></h2>
+          </div>
+        </div>
+        <div class="row mb-5 row-cols-1 row-cols-md-3 text-center">
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <h1 class="card-title pricing-card-title">4</h1>
+                <h2 class="text-muted fw-light">WEEKS</h2>
+                <ul class="list-unstyled mt-3 mb-4">
+                  <li>to create enterprise level dashboard</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <h1 class="card-title pricing-card-title">80%</h1>
+                <h2 class="text-muted fw-light">REDUCTION</h2>
+                <ul class="list-unstyled mt-3 mb-4">
+                  <li>in data spends</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <h1 class="card-title pricing-card-title">100%</h1>
+                <h2 class="text-muted fw-light">VISIBILITY</h2>
+                <ul class="list-unstyled mt-3 mb-4">
+                  <li>into data assests and processes</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <h1 class="card-title pricing-card-title">80%</h1>
-              <h2 class="text-muted fw-light">REDUCTION</h2>
-              <ul class="list-unstyled mt-3 mb-4">
-                <li>in data spends</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <h1 class="card-title pricing-card-title">100%</h1>
-              <h2 class="text-muted fw-light">VISIBILITY</h2>
-              <ul class="list-unstyled mt-3 mb-4">
-                <li>into data assests and processes</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>  
-      <h2 class="text-center mt-2 mb-4">Benefits</h2>
-      <div class="row row-cols-2 row-cols-md-3 mb-3 text-center">
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon1.svg" alt="Image"></span>
-              <h3 class="card-title pricing-card-title mt-4">Unified Platform</h1>
-              <p class="text-muted fw-light">Data integration to insights in one tool</p>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon2.svg" alt="Image"></span>
-              <h3 class="card-title pricing-card-title mt-4">Data Democratization</h1>
-              <p class="text-muted fw-light">Enable every stakeholder in the organization with relevant data & promote data culture</p>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon3.svg" alt="Image"></span>
-              <h3 class="card-title pricing-card-title mt-4">High Data Confidence</h1>
-              <p class="text-muted fw-light">Use health score to monitor all data assets and easily fix bad data</p>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon4.svg" alt="Image"></span>
-              <h3 class="card-title pricing-card-title mt-4">Augmented Analytics</h1>
-              <p class="text-muted fw-light">Look beyond 'what happened' by performing advanced analytics without technical expertise</p>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon5.svg" alt="Image"></span>
-              <h3 class="card-title pricing-card-title mt-4">Eliminate Data</h1>
-              <p class="text-muted fw-light">Integrate data from all sources to create a single source of truth, get holistic insights, and remove inconsistencies</p>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card mb-4 rounded-3 shadow-sm">
-            <div class="card-body">
-              <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon6.svg" alt="Image"></span>
-              <h3 class="card-title pricing-card-title mt-4">Multi-Cloud Compatibility</h1>
-              <p class="text-muted fw-light">Seamlessly leverage multiple cloud platforms across the data chain</p>
-            </div>
-          </div>
-        </div>
-       </div>  
-      
-      <h2 class="text-center mt-2 mb-4">Inventory</h2>
-      <div>
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">ID</th>
-              <th scope="col">Product Name</th>
-              <th scope="col">Quantity</th>
-              <th scope="col">Price (INR)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for product in products %}
-            <tr>
-              <th scope="col">{{product['id']}}</th>
-              <th scope="col">{{product['name']}}</th>
-              <th scope="col">{{product['qty']}}</th>
-              <th scope="col">{{product['cp']}}</th>
-            </tr>
-            {% endfor %}
-          </tbody>
-          </table>
       </div>
-      <div class="text-center">
-      <a class="btn btn-primary btn-lg" href="mailto:hello@jovian.ai?subject=Question%20about%20Job%20Opernings&body=My%20name%3A%20%3Cyour%20name%20here%3E%0D%0A%0D%0AMy%20questions%3A%20%3Center%20question%20here%3E%0D%0A">Contact Us</a>
+    </section>
+    <section id="achievement" class="achievement section-bg">
+      <div class="container data-aos="fade-up"">
+        <div class="section-bg">
+          <div class="section-title">
+            <h2>Advantages</h2>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 mb-3 text-center">
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon1.svg" alt="Image"></span>
+                <h3 class="card-title pricing-card-title mt-4">Unified Platform</h1>
+                <p class="text-muted fw-light">Data integration to insights in one tool</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon2.svg" alt="Image"></span>
+                <h3 class="card-title pricing-card-title mt-4">Data Democratization</h1>
+                <p class="text-muted fw-light">Enable every stakeholder in the organization with relevant data & promote data culture</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon3.svg" alt="Image"></span>
+                <h3 class="card-title pricing-card-title mt-4">High Data Confidence</h1>
+                <p class="text-muted fw-light">Use health score to monitor all data assets and easily fix bad data</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon4.svg" alt="Image"></span>
+                <h3 class="card-title pricing-card-title mt-4">Augmented Analytics</h1>
+                <p class="text-muted fw-light">Look beyond 'what happened' by performing advanced analytics without technical expertise</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon5.svg" alt="Image"></span>
+                <h3 class="card-title pricing-card-title mt-4">Eliminate Data</h1>
+                <p class="text-muted fw-light">Integrate data from all sources to create a single source of truth, get holistic insights, and remove inconsistencies</p>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm">
+              <div class="card-body">
+                <span><img src="https://www.maplemonk.com/wp-content/uploads/2021/10/benefits-icon6.svg" alt="Image"></span>
+                <h3 class="card-title pricing-card-title mt-4">Multi-Cloud Compatibility</h1>
+                <p class="text-muted fw-light">Seamlessly leverage multiple cloud platforms across the data chain</p>
+              </div>
+            </div>
+          </div>
+         </div>  
+          <div class="text-center">
+          <a class="btn btn-primary btn-lg" href="/">Contact Us</a>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
+    
     <div class="container">
       <footer class="py-3 my-4">
         <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-          <li class="nav-item"><a  target="_blank" href="https://www.jovian.ai" class="nav-link px-2 text-muted">Home</a></li>
-          <li class="nav-item"><a  target="_blank" href="https://jovian.ai/learn" class="nav-link px-2 text-muted">Courses</a></li>
+          <li class="nav-item"><a  target="_blank" href="" class="nav-link px-2 text-muted">Home</a></li>
+          <li class="nav-item"><a  target="_blank" href="" class="nav-link px-2 text-muted">Courses</a></li>
           
-          <li class="nav-item"><a target="_blank" href="https://jovian.ai/events" class="nav-link px-2 text-muted">Events</a></li>
-          <li class="nav-item"><a  target="_blank" href="https://jovian.ai/about" class="nav-link px-2 text-muted">About</a></li>
+          <li class="nav-item"><a target="_blank" href="" class="nav-link px-2 text-muted">Events</a></li>
+          <li class="nav-item"><a  target="_blank" href="" class="nav-link px-2 text-muted">About</a></li>
         </ul>
         <p class="text-center text-muted">&copy; 2023 Hisaab, Inc</p>
       </footer>
     </div>
+    
     {% include 'script.html' %}
   </body>
 </html>

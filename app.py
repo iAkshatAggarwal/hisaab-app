@@ -50,8 +50,8 @@ def show_products():
   labels=[]
   values=[]
   for row in products:
-    labels.append(row['name'])
-    values.append(row['qty'])
+    labels.append(row['pname'])
+    values.append(row['pqty'])
   data = {'labels':labels, 'values':values}
   
   return render_template('products.html',
