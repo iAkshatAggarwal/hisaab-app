@@ -26,3 +26,18 @@ def load_sales():
         row_dic = dict(zip(response.keys(), row))
         sales.append(row_dic)
     return sales
+
+def load_wholesalers():
+  with engine.connect() as conn:
+    response = conn.execute(text("SELECT * from wholesalers"))
+    ledgers = []
+    for row in response.fetchall():
+        row_dic = dict(zip(response.keys(), row))
+        ledgers.append(row_dic)
+    return ledgers
+
+def add_products():
+  with engine.connect() as conn:
+    query = text("INSERT INTO products(pname, pcp, psp, pqt) VALUES (:pname, :pcp, :psp, :pqt)")
+
+    conn.execute(query)

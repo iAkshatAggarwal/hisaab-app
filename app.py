@@ -3,23 +3,9 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 import datetime
 # import pandas as pd
 # from sklearn.linear_model import LinearRegression
-from database import load_inventory, load_sales
+from database import load_inventory, load_sales, load_wholesalers
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bookkeeping.db'
-# db = SQLAlchemy(app)
-
-# class Product(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String(50), nullable=False)
-#     price = db.Column(db.Float, nullable=False)
-
-# class Sale(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-#     product = db.relationship('Product', backref=db.backref('sales', lazy=True))
-#     date = db.Column(db.Date, nullable=False)
-#     quantity = db.Column(db.Integer, nullable=False)
 
 # def predict_growth():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)
@@ -64,6 +50,21 @@ def show_products():
   
   return render_template('products.html',
                          products=products,
+                         data=data)
+
+@app.route('/ledgers')
+def show_ledgers():
+  ledgers = load_wholesalers()
+  #For chart
+  labels=[]
+  values=[]
+  for row in ledgers:
+    labels.append(row['wname'])
+    values.append(row['credit'])
+  data = {'labels':labels, 'values':values}
+  
+  return render_template('ledger.html',
+                         ledgers=ledgers,
                          data=data)
 
 @app.route('/orders')
