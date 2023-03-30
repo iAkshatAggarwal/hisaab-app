@@ -1,11 +1,9 @@
 import os
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
-# from flask_sqlalchemy import SQLAlchemy
 import datetime
-# import pandas as pd
-# from sklearn.linear_model import LinearRegression
 from utils import check_user, make_chart
 from database import load_users, load_inventory, load_sales, load_wholesalers, delete_products
+# from sklearn.linear_model import LinearRegression
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
