@@ -1,11 +1,14 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+import os
+from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 # from flask_sqlalchemy import SQLAlchemy
 import datetime
 # import pandas as pd
 # from sklearn.linear_model import LinearRegression
+from utils import check_user, make_chart
 from database import load_users, load_inventory, load_sales, load_wholesalers, delete_products
 
 app = Flask(__name__)
+app.secret_key = os.environ['SECRET_KEY']
 
 # def predict_growth():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)
@@ -22,47 +25,35 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # products = load_inventory()
     return render_template('home.html')
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    # users = load_users()
-    # return users
     if request.method == "GET":
         return render_template("login.html")
       
     elif request.method == "POST": 
+        session['login_error'] = False
         users = load_users()
         username = request.form["username"]
         password = request.form["password"]
-        for user in users:
-          if user['uname'] == username and user['upass'] == password:
+      
+        if check_user(users, username, password):
             return render_template("dashboard.html")
-          else:
-            return redirect("/login")
-    
-@app.route('/register')
-def register():
-    return render_template('register.html') 
+        login_error = session.pop('login_error', False)
+        return render_template('login.html', login_error=login_error)
 
+#Dashboard
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
 
 #Products
-
 @app.route('/products')
 def show_products():
   products = load_inventory()
   #For chart
-  labels=[]
-  values=[]
-  for row in products:
-    labels.append(row['pname'])
-    values.append(row['pqty'])
-  data = {'labels':labels, 'values':values}
-  
+  data = make_chart(products, 'pname', 'pqty')
   return render_template('products.html',
                          products=products,
                          data=data)
@@ -71,18 +62,11 @@ def show_products():
 # delete_products(id)
 
 #Ledgers
-
 @app.route('/ledgers')
 def show_ledgers():
   ledgers = load_wholesalers()
   #For chart
-  labels=[]
-  values=[]
-  for row in ledgers:
-    labels.append(row['wname'])
-    values.append(row['credit'])
-  data = {'labels':labels, 'values':values}
-  
+  data = make_chart(ledgers, 'wname', 'credit')
   return render_template('ledger.html',
                          ledgers=ledgers,
                          data=data)
