@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 import datetime
 # import pandas as pd
 # from sklearn.linear_model import LinearRegression
-from database import load_inventory, load_sales, load_wholesalers, delete_products
+from database import load_users, load_inventory, load_sales, load_wholesalers, delete_products
 
 app = Flask(__name__)
 
@@ -22,13 +22,26 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    products = load_inventory()
-    return render_template('home.html', products=products)
+    # products = load_inventory()
+    return render_template('home.html')
 
-@app.route('/login')
+@app.route('/login', methods=["GET", "POST"])
 def login():
-    return render_template('login.html') 
-
+    # users = load_users()
+    # return users
+    if request.method == "GET":
+        return render_template("login.html")
+      
+    elif request.method == "POST": 
+        users = load_users()
+        username = request.form["username"]
+        password = request.form["password"]
+        for user in users:
+          if user['uname'] == username and user['upass'] == password:
+            return render_template("dashboard.html")
+          else:
+            return redirect("/login")
+    
 @app.route('/register')
 def register():
     return render_template('register.html') 

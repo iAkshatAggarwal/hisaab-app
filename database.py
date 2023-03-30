@@ -9,6 +9,15 @@ engine = create_engine(conn_string, connect_args = {
   }
 })
 
+def load_users():
+  with engine.connect() as conn:
+    result = conn.execute(text("SELECT * from users"))
+    users = []
+    for row in result.fetchall():
+        row_dict = dict(zip(result.keys(), row))
+        users.append(row_dict)
+    return users
+    
 def load_inventory():
   with engine.connect() as conn:
     result = conn.execute(text("SELECT * from product"))
