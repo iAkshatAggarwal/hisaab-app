@@ -3,7 +3,7 @@ from flask import Flask, render_template, jsonify, request, redirect, url_for
 import datetime
 # import pandas as pd
 # from sklearn.linear_model import LinearRegression
-from database import load_inventory, load_sales, load_wholesalers
+from database import load_inventory, load_sales, load_wholesalers, delete_products
 
 app = Flask(__name__)
 
@@ -36,7 +36,9 @@ def register():
 @app.route('/dashboard')
 def dashboard():
     return render_template('dashboard.html')
-  
+
+#Products
+
 @app.route('/products')
 def show_products():
   products = load_inventory()
@@ -51,6 +53,11 @@ def show_products():
   return render_template('products.html',
                          products=products,
                          data=data)
+
+# @app.route("/products/<int:pid>/delete")
+# delete_products(id)
+
+#Ledgers
 
 @app.route('/ledgers')
 def show_ledgers():

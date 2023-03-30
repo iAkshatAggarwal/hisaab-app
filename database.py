@@ -38,6 +38,12 @@ def load_wholesalers():
 
 def add_products():
   with engine.connect() as conn:
-    query = text("INSERT INTO products(pname, pcp, psp, pqt) VALUES (:pname, :pcp, :psp, :pqt)")
+    query = text("INSERT INTO product(pname, pcp, psp, pqt) VALUES (:pname, :pcp, :psp, :pqt)")
+
+    conn.execute(query)
+
+def delete_products(id):
+  with engine.connect() as conn:
+    query = text("DELETE FROM product WHERE pid = :pid")
 
     conn.execute(query)
