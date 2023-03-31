@@ -71,7 +71,7 @@
               <td scope="col">{{product['pcp']}}</td>
               <td>
                 <a class="btn btn-outline-primary" href="" role="button">Update</a>
-                <a class="btn btn-outline-danger" href="" role="button">Delete</a>
+                <a class="btn btn-outline-danger" href="/products/{{product['pid']}}/delete" role="button">Delete</a>
               </td>
             </tr>
             {% endfor %}

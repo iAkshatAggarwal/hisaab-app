@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 import datetime
 from utils import check_user, make_chart
-from database import load_users, load_inventory, load_sales, load_wholesalers
+from database import load_users, load_inventory, load_sales, load_wholesalers, delete_product
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -59,8 +59,10 @@ def show_products():
   else:
       return redirect(url_for('login'))
     
-# @app.route("/products/<int:pid>/delete")
-# def delete_products(id)
+@app.route("/products/<pid>/delete")
+def del_prod(pid):
+    if delete_product(pid):
+      return redirect("/products")
 
 #Ledgers
 @app.route('/ledgers')

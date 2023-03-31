@@ -51,8 +51,7 @@ def add_products():
 
     conn.execute(query)
 
-def delete_products(id):
+def delete_product(id):
   with engine.connect() as conn:
-    query = text("DELETE FROM product WHERE pid = :pid")
-
-    conn.execute(query)
+    conn.execute(text("DELETE FROM product WHERE pid = :val"), {'val': id})
+    return True
