@@ -27,14 +27,18 @@
     </style>
     <!-- Custom styles for this template -->
     <link href="/static/css/signin.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   </head>
   
   <body class="text-center">
     <main class="form-signin">
       {% if login_error %}
-        <div class="alert alert-danger" role="alert">
-            Incorrect password. Please try again.
-        </div>
+        <script>
+          $(document).ready(function(){
+            console.log("jQuery function executed.");
+            alert("Incorrect password. Please try again.");
+          });
+        </script>
       {% endif %}
       <form action="/login" method="POST">
         <a class="mx-auto" href="/">
@@ -57,5 +61,6 @@
         <p class="mt-5 mb-3 text-muted">&copy;2023 Hisaab, Inc</p>
       </form>
     </main>
+
   </body>
 </html>
