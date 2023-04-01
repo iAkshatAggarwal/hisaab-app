@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, jsonify, request, session, redirect, url_for
 import datetime
 from utils import check_user, make_chart
-from database import load_users, load_inventory, load_sales, load_wholesalers, delete_product
+from database import load_users, load_inventory, load_sales, load_wholesalers, add_product, delete_product
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -58,11 +58,23 @@ def show_products():
                              data=data)
   else:
       return redirect(url_for('login'))
-    
+
+@app.route("/add_product", methods=["GET", "POST"])
+def add_prod():
+    if add_product(request.form["pname"],
+                  request.form["pcp"],
+                  request.form["pqty"]):
+      return redirect("/products")
+
 @app.route("/products/<pid>/delete")
 def del_prod(pid):
     if delete_product(pid):
       return redirect("/products")
+
+# @app.route("products/<pid>/update", methods=["GET", "POST"])
+# def mod_prod(tid):
+    
+#     return redirect('/run_record')
 
 #Ledgers
 @app.route('/ledgers')

@@ -45,13 +45,20 @@ def load_wholesalers():
         ledgers.append(row_dic)
     return ledgers
 
-def add_products():
+def add_product(pname, pcp, pqty):
   with engine.connect() as conn:
-    query = text("INSERT INTO product(pname, pcp, psp, pqt) VALUES (:pname, :pcp, :psp, :pqt)")
-
-    conn.execute(query)
+    query = text("INSERT INTO product(pname, pcp, pqty) VALUES (:pname, :pcp, :pqty)")
+    conn.execute(query,
+                 {'pname': pname, 'pcp': pcp, 'pqty': pqty}
+    )
+    return True
 
 def delete_product(id):
   with engine.connect() as conn:
     conn.execute(text("DELETE FROM product WHERE pid = :val"), {'val': id})
+    return True
+
+def update_product(id):
+  with engine.connect() as conn:
+    conn.execute(text("UPDATE product SET {} = %s WHERE id = %s"), {'val': id})
     return True
