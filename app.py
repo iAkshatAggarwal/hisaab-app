@@ -1,8 +1,7 @@
 import os
-from flask import Flask, render_template, jsonify, request, session, redirect, url_for
-import datetime
+from flask import Flask, render_template, request, session, redirect, url_for
 from utils import check_user, make_chart
-from database import load_users, load_inventory, load_sales, load_wholesalers, add_product, delete_product
+from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, add_product, delete_product, add_ledger, delete_ledger, add_sale, delete_sale
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -35,7 +34,7 @@ def logout():
     # redirect to login page
     return redirect(url_for('login'))
           
-#Dashboard
+#-------------------------------Dashboard-------------------------------
 @app.route('/dashboard')
 def dashboard():
     # check if user is authenticated
@@ -46,7 +45,7 @@ def dashboard():
         # user is not authenticated, redirect to login page
         return redirect(url_for('login'))
 
-#Products
+#-------------------------------Products-------------------------------
 @app.route('/products')
 def show_products():
   if session.get('authenticated'):
@@ -76,54 +75,70 @@ def del_prod(pid):
     
 #     return redirect('/run_record')
 
-#Ledgers
+#-------------------------------Ledgers-------------------------------
 @app.route('/ledgers')
 def show_ledgers():
   if session.get('authenticated'):
-      ledgers = load_wholesalers()
+      ledgers = load_ledgers()
+      wholesalers = load_wholesalers()
+      #wslist = [ws['wname'] for ws in wholesalers] #list of wholesalers' name
       #For chart
       data = make_chart(ledgers, 'wname', 'credit')
       return render_template('ledger.html',
                              ledgers=ledgers,
+                             wholesalers=wholesalers,
                              data=data)
   else:
       return redirect(url_for('login'))
-    
-@app.route('/orders')
+
+@app.route("/add_ledger", methods=["GET", "POST"])
+def add_led():
+    if add_ledger(request.form["wname"],
+                  request.form["credit"],
+                  request.form["debit"]):
+      return redirect("/ledgers")
+
+@app.route("/ledgers/<wid>/delete")
+def del_led(wid):
+    if delete_ledger(wid):
+      return redirect("/ledgers")  
+
+#-------------------------------Sales-------------------------------
+@app.route('/sales')
 def show_sales():
   if session.get('authenticated'):
       sales = load_sales()
-      return render_template('sales.html', sales=sales)
+      products = load_inventory()
+      #For chart
+      date_sums = {}
+      for sale in sales: #Sum up the prices for each date
+          if sale['sold_date'] in date_sums:
+              date_sums[sale['sold_date']] += sale['sale_price']
+          else:
+              date_sums[sale['sold_date']] = sale['sale_price']
+      #New list of dictionaries with the summed prices for each date
+      output = [{'sold_date': sold_date, 'sale_price': sale_price} for sold_date, sale_price in date_sums.items()]
+      data = make_chart(output, 'sold_date', 'sale_price')
+      return render_template('sales.html',
+                             products = products,
+                             sales=sales,
+                             data=data)
 
   else:
       return redirect(url_for('login'))
 
-# @app.route('/product/add', methods=['GET', 'POST'])
-# def add_product():
-#     if request.method == 'POST':
-#         name = request.form['name']
-#         price = float(request.form['price'])
-#         product = Product(name=name, price=price)
-#         db.session.add(product)
-#         db.session.commit()
-#         return redirect(url_for('index'))
-#     else:
-#         return render_template('add_product.html')
+@app.route("/add_sale", methods=["GET", "POST"])
+def add_sales():
+    if add_sale(request.form["pname"],
+                  request.form["qty"],
+                  request.form["price"],
+                  request.form["customer"]):
+      return redirect("/sales")
 
-# @app.route('/sale/add', methods=['GET', 'POST'])
-# def add_sale():
-#     if request.method == 'POST':
-#         product_id = int(request.form['product'])
-#         product = Product.query.get(product_id)
-#         date = datetime.datetime.strptime(request.form['date'], '%Y-%m-%d').date()
-#         quantity = int(request.form['quantity'])
-#         sale = Sale(product=product, date=date, quantity=quantity)
-#         db.session.add(sale)
-#         db.session.commit()
-#         return redirect(url_for('index'))
-#     else:
-#         products = Product.query.all()
-#         return render_template('add_sale.html', products=products)
+@app.route("/sales/<id>/delete")
+def del_sales(id):
+    if delete_sale(id):
+      return redirect("/sales") 
 
 # @app.route('/revenue')
 # def revenue():

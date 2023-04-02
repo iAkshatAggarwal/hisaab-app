@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Hisaab: Orders</title>
+    <title>Hisaab: Sales</title>
     <link rel="shortcut icon" href="/static/growth.svg"> 
     {% include 'bootstrap.html' %}
     <style>
-      .sidebar #orders {
+      .sidebar #sales {
       color: #2470dc;
     }
     </style>
@@ -33,27 +33,55 @@
       <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
 
       <h2>Sales</h2>
+      <!-- Add transaction form -->
+      <form class="mb-5 mt-4" action="/add_sale" method="POST">
+        <div class="mx-auto row">
+          <div class="col-md-2">
+            <select id="option" name="pname" class="form-control">
+              {% for product in products %}
+              <option value="{{ product['pname'] }}">
+                {{ product['pname'] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+              <input type="text" class="form-control" name="qty" placeholder="Quantity">
+          </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" name="price" placeholder="Price">
+          </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" name="customer" placeholder="Customer Name">
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-success" type="submit">Add Sale</button>
+          </div>
+        </div>
+      </form>
       <div class="table-responsive">
         <table class="table table-striped table-sm">
           <thead>
             <tr>
-              <th scope="col">ID</th>
+              <th scope="col">Date</th>
               <th scope="col">Product Name</th>
               <th scope="col">Quantity</th>
               <th scope="col">Price (INR)</th>
-              <th scope="col">Sold Date</th>
               <th scope="col">Customer Name</th>
             </tr>
           </thead>
           <tbody>
             {% for sale in sales %}
             <tr>
-              <th scope="col">{{sale['product_id']}}</th>
-              <th scope="col">{{sale['product_name']}}</th>
-              <th scope="col">{{sale['sold_qty']}}</th>
-              <th scope="col">{{sale['sale_price']}}</th>
-              <th scope="col">{{sale['sold_date']}}</th>
-              <th scope="col">{{sale['customer_date']}}</th>
+              <td scope="col">{{sale['sold_date']}}</td>
+              <td scope="col">{{sale['product_name']}}</td>
+              <td scope="col">{{sale['sold_qty']}}</td>
+              <td scope="col">{{sale['sale_price']}}</td>
+              <td scope="col">{{sale['customer_date']}}</td>
+              <td>
+                <a class="btn btn-outline-primary" href="" role="button">Update</a>
+                <a class="btn btn-outline-danger" href="/sales/{{sale['id']}}/delete" role="button">Delete</a>
+              </td>
             </tr>
             {% endfor %}
           </tbody>
@@ -63,6 +91,6 @@
       </div>
     </div>
     {% include 'script.html' %}
-    <script src="/static/js/dashboard.js"></script>
+    {% include 'chart.html' %}
   </body>
 </html>

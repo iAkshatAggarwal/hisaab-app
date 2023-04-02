@@ -34,12 +34,37 @@
       <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
       <!-- Tables -->
       <h2>Ledger</h2>
+      <!-- Add transaaction form -->
+      <form class="mb-5 mt-4" action="/add_ledger" method="POST">
+        <div class="mx-auto row">
+          <div class="col-md-2">
+            <select id="option" name="wname" class="form-control">
+              {% for wholesaler in wholesalers %}
+              <option value="{{ wholesaler['wname'] }}">
+                {{ wholesaler['wname'] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+              <input type="text" class="form-control" name="credit" placeholder="Credit">
+          </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" name="debit" placeholder="Debit">
+           </div>
+          <div class="col-md-3">
+            <button class="btn btn-success" type="submit">Add transaction</button>
+          </div>
+        </div>
+      </form>
+      <!-- Show transactions -->
       <div class="table-responsive">
         <table class="table table-striped table-sm">
           <thead>
             <tr>
               <th scope="col">ID</th>
               <th scope="col">Wholesaler</th>
+              <th scope="col">Transaction time</th>
               <th scope="col">Credit(INR)</th>
               <th scope="col">Debit(INR)</th>
             </tr>
@@ -47,10 +72,15 @@
           <tbody>
             {% for ledger in ledgers %}
             <tr>
-              <th scope="col">{{ledger['wid']}}</th>
-              <th scope="col">{{ledger['wname']}}</th>
-              <th scope="col">{{ledger['credit']}}</th>
-              <th scope="col">{{ledger['debit']}}</th>
+              <td scope="col">{{ledger['wid']}}</td>
+              <td scope="col">{{ledger['wname']}}</td>
+              <td scope="col">{{ledger['ttime']}}</td>
+              <td scope="col">{{ledger['credit']}}</td>
+              <td scope="col">{{ledger['debit']}}</td>
+              <td>
+                <a class="btn btn-outline-primary" href="" role="button">Update</a>
+                <a class="btn btn-outline-danger" href="/ledgers/{{ledger['wid']}}/delete" role="button">Delete</a>
+              </td>
             </tr>
             {% endfor %}
           </tbody>
@@ -61,35 +91,6 @@
     </div>
     
     {% include 'script.html' %}
-    <script>
-        feather.replace({ 'aria-hidden': 'true' })
-        // Parse the data embedded in the HTML template
-        var data = JSON.parse('{{ data | tojson | safe }}');
-
-        // Create the chart using Chart.js
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: 'Data',
-                    data: data.values,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
-    </script>
+    {% include 'chart.html' %}
   </body>
 </html>

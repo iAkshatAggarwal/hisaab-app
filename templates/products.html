@@ -15,7 +15,6 @@
   
   <body>
     {% include 'dash_nav.html' %} 
-    
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Products</h1>
@@ -84,35 +83,6 @@
     </div>
     
     {% include 'script.html' %}
-    <script>
-        feather.replace({ 'aria-hidden': 'true' })
-        // Parse the data embedded in the HTML template
-        var data = JSON.parse('{{ data | tojson | safe }}');
-
-        // Create the chart using Chart.js
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: 'Data',
-                    data: data.values,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        }
-                    }]
-                }
-            }
-        });
-    </script>
+    {% include 'chart.html' %}
   </body>
 </html>

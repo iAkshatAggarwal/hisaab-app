@@ -1,4 +1,5 @@
 import os
+import datetime
 from sqlalchemy import create_engine, text
 
 conn_string = os.environ['DB_CONNECTION_STRING']
@@ -39,12 +40,22 @@ def load_sales():
 def load_wholesalers():
   with engine.connect() as conn:
     response = conn.execute(text("SELECT * from wholesalers"))
+    wholesalers = []
+    for row in response.fetchall():
+        row_dic = dict(zip(response.keys(), row))
+        wholesalers.append(row_dic)
+    return wholesalers
+
+def load_ledgers():
+  with engine.connect() as conn:
+    response = conn.execute(text("SELECT * from ledger"))
     ledgers = []
     for row in response.fetchall():
         row_dic = dict(zip(response.keys(), row))
         ledgers.append(row_dic)
     return ledgers
 
+#-------------------------------Products-------------------------------
 def add_product(pname, pcp, pqty):
   with engine.connect() as conn:
     query = text("INSERT INTO product(pname, pcp, pqty) VALUES (:pname, :pcp, :pqty)")
@@ -61,4 +72,49 @@ def delete_product(id):
 def update_product(id):
   with engine.connect() as conn:
     conn.execute(text("UPDATE product SET {} = %s WHERE id = %s"), {'val': id})
+    return True
+
+#-------------------------------Ledgers-------------------------------
+def add_ledger(wname, credit, debit):
+  with engine.connect() as conn:
+    if credit == "":
+      credit = 0
+    elif debit == "":
+      debit = 0
+    query = text("INSERT INTO ledger(wname, ttime, credit, debit) VALUES (:wname, :ttime, :credit, :debit)")
+    conn.execute(query,
+                 {
+                  'wname': wname, 
+                  'ttime': datetime.datetime.now(), 
+                  'credit': credit, 
+                  'debit': debit
+                 }
+    )
+    return True
+
+def delete_ledger(id):
+  with engine.connect() as conn:
+    conn.execute(text("DELETE FROM ledger WHERE wid = :val"), {'val': id})
+    return True
+
+#-------------------------------Sales-------------------------------
+def add_sale(pname, qty, price, customer):
+  with engine.connect() as conn:
+    if customer == "":
+      customer = "CASH"
+    query = text("INSERT INTO sales(product_name, sold_date, sold_qty, sale_price, customer_name) VALUES (:product_name, :sold_date, :sold_qty, :sale_price, :customer_name)")
+    conn.execute(query,
+                 {
+                  'product_name': pname, 
+                  'sold_date': datetime.datetime.now(), 
+                  'sold_qty': qty, 
+                  'sale_price': price,
+                  'customer_name': customer
+                 }
+    )
+    return True
+
+def delete_sale(id):
+  with engine.connect() as conn:
+    conn.execute(text("DELETE FROM sales WHERE id = :val"), {'val': id})
     return True
