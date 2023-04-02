@@ -16,6 +16,17 @@ def make_chart(table, x, y):
   data = {'labels':labels, 'values':values}
   return data
 
+def add_dates(sales):
+  date_sums = {}
+  for sale in sales: #Sum up the prices for each date
+    if sale['sold_date'] in date_sums:
+      date_sums[sale['sold_date']] += sale['sale_price']
+    else:
+      date_sums[sale['sold_date']] = sale['sale_price']
+    #New list of dictionaries with the summed prices for each date
+  output = [{'sold_date': sold_date, 'sale_price': sale_price} for sold_date, sale_price in date_sums.items()]
+  return output
+
 # def predict_growth():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)
 #     sales_data['month'] = pd.to_datetime(sales_data['date']).dt.to_period('M')

@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, make_chart
+from utils import check_user, make_chart, add_dates
 from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, add_product, delete_product, add_ledger, delete_ledger, add_sale, delete_sale
 
 app = Flask(__name__)
@@ -110,14 +110,7 @@ def show_sales():
       sales = load_sales()
       products = load_inventory()
       #For chart
-      date_sums = {}
-      for sale in sales: #Sum up the prices for each date
-          if sale['sold_date'] in date_sums:
-              date_sums[sale['sold_date']] += sale['sale_price']
-          else:
-              date_sums[sale['sold_date']] = sale['sale_price']
-      #New list of dictionaries with the summed prices for each date
-      output = [{'sold_date': sold_date, 'sale_price': sale_price} for sold_date, sale_price in date_sums.items()]
+      output = add_dates(sales) #adding prices for same dates 
       data = make_chart(output, 'sold_date', 'sale_price')
       return render_template('sales.html',
                              products = products,
