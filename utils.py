@@ -16,6 +16,14 @@ def make_chart(table, x, y):
   data = {'labels':labels, 'values':values}
   return data
 
+def get_cards(sales):
+  gross_revenue = 0
+  gross_profit = 0
+  for sale in sales:
+    gross_revenue += sale['sale_amt']
+    gross_profit += sale['sale_profit']
+  return gross_revenue, gross_profit   
+
 def add_dates(sales):
   date_sums = {}
   for sale in sales: #Sum up the prices for each date

@@ -109,7 +109,7 @@ def add_sale(pname, qty, price, customer):
     products = load_inventory()
     amount = int(qty) * int(price)
     cp = get_cp(products, pname)
-    new_qty = get_pqty(products, pname) - int(qty)
+    new_qty = get_pqty(products, pname) - int(qty) #upadated qty of inventory
     profit = amount - (int(qty) * int(cp))
     query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer)")
     conn.execute(query,

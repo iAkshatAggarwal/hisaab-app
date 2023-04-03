@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, make_chart, add_dates
+from utils import check_user, make_chart, add_dates, get_cards
 from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, add_product, delete_product, add_ledger, delete_ledger, add_sale, delete_sale
 
 app = Flask(__name__)
@@ -40,7 +40,11 @@ def dashboard():
     # check if user is authenticated
     if session.get('authenticated'):
       # user is authenticated, render dashboard page
-        return render_template('dashboard.html')
+        sales = load_sales()
+        g_revenue , g_profit = get_cards(sales)
+        return render_template('dashboard.html',
+                               g_revenue=g_revenue,
+                               g_profit=g_profit)
     else:
         # user is not authenticated, redirect to login page
         return redirect(url_for('login'))
@@ -111,7 +115,7 @@ def show_sales():
       sales = load_sales()
       products = load_inventory()
       #For chart
-      output = add_dates(sales) #adding prices for same dates 
+      output = add_dates(sales) #adding amount for same dates 
       data = make_chart(output, 'sale_date', 'sale_amt')
       return render_template('sales.html',
                              products = products,
