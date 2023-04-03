@@ -54,6 +54,12 @@
           <div class="col-md-2">
             <input type="text" class="form-control" name="customer" placeholder="Customer Name">
           </div>
+          <div class="col-md-1">
+            <select id="option" name="status" class="form-control">
+              <option value="Unpaid">Unpaid</option>
+              <option value="Paid">Paid</option>
+            </select>
+          </div>
           <div class="col-md-3">
             <button class="btn btn-success" type="submit">Add Sale</button>
           </div>
@@ -70,6 +76,7 @@
               <th scope="col">Amount (INR)</th>
               <th scope="col">Profit (INR)</th>
               <th scope="col">Customer Name</th>
+              <th scope="col">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -82,6 +89,7 @@
               <td scope="col">{{sale['sale_amt']}}</td>
               <td scope="col">{{sale['sale_profit']}}</td>
               <td scope="col">{{sale['customer']}}</td>
+              <td scope="col">{{sale['status']}}</td>
               <td>
                 <a class="btn btn-outline-primary" href="" role="button">Update</a>
                 <a class="btn btn-outline-danger" href="/sales/{{sale['id']}}/delete" role="button">Delete</a>

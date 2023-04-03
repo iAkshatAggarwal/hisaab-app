@@ -130,7 +130,8 @@ def add_sales():
     if add_sale(request.form["pname"],
                   request.form["qty"],
                   request.form["price"],
-                  request.form["customer"]):
+                  request.form["customer"],
+                  request.form['status']):
       return redirect("/sales")
 
 @app.route("/sales/<id>/delete")

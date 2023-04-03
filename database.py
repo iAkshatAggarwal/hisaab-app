@@ -103,7 +103,7 @@ def delete_ledger(id):
     return True
 
 #-------------------------------Sales-------------------------------
-def add_sale(pname, qty, price, customer):
+def add_sale(pname, qty, price, customer, status):
   with engine.connect() as conn:
     #to get cp
     products = load_inventory()
@@ -111,7 +111,7 @@ def add_sale(pname, qty, price, customer):
     cp = get_cp(products, pname)
     new_qty = get_pqty(products, pname) - int(qty) #upadated qty of inventory
     profit = amount - (int(qty) * int(cp))
-    query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer)")
+    query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer, status) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer, :status)")
     conn.execute(query,
                  {
                   'product': pname, 
@@ -120,7 +120,8 @@ def add_sale(pname, qty, price, customer):
                   'sale_price': price,
                   'sale_amt': amount,
                   'sale_profit': profit,
-                  'customer': customer
+                  'customer': customer,
+                  'status': status
                  }
     )
     query2 = text("UPDATE product SET pqty = :pqty  WHERE pname = :pname")
