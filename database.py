@@ -83,9 +83,17 @@ def delete_product(id):
     conn.execute(text("DELETE FROM product WHERE pid = :val"), {'val': id})
     return True
 
-def update_product(id):
+def update_product(pname, pcp, psp, pqty):
   with engine.connect() as conn:
-    conn.execute(text("UPDATE product SET {} = %s WHERE id = %s"), {'val': id})
+    query = (text("UPDATE product SET pcp =:pcp, psp =:psp, pqty =:pqty WHERE pname = :pname"))
+    conn.execute(query,
+                 {
+                  'pname': pname, 
+                  'pcp': pcp, 
+                  'psp': psp, 
+                  'pqty': pqty
+                 }
+    )
     return True
 
 #------------------------------- Ledgers -------------------------------

@@ -53,6 +53,7 @@
           </div>
         </div>
       </form>
+      
       <!-- Show Inventory -->
       <div class="table-responsive mb-3">
         <table class="table table-striped table-sm">
@@ -61,7 +62,9 @@
               <th scope="col">ID</th>
               <th scope="col">Product Name</th>
               <th scope="col">Quantity</th>
+              <th scope="col">Cost Price (INR)</th>
               <th scope="col">Sale Price (INR)</th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -70,17 +73,43 @@
               <td scope="col">{{product['pid']}}</td>
               <td scope="col">{{product['pname']}}</td>
               <td scope="col">{{product['pqty']}}</td>
+              <td scope="col">{{product['pcp']}}</td>
               <td scope="col">{{product['psp']}}</td>
               <td>
-                <a class="btn btn-outline-primary" href="" role="button">Update</a>
                 <a class="btn btn-outline-danger" href="/products/{{product['pid']}}/delete" role="button">Delete</a>
               </td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-<!--         <a class="btn btn-outline-success" href="/add_cal/" role="button">+ Add Products</a> -->
       </div>
+      
+      <!-- Update Inventory -->
+      <form class="mb-5 mt-4" action="/products/update" method="POST">
+        <div class="mx-auto row">
+          <div class="col-md-2">
+            <select id="option" name="uname" class="form-control">
+              {% for product in products %}
+              <option value="{{ product['pname'] }}">
+                {{ product['pname'] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+              <input type="text" class="form-control" name="uqty" placeholder="New Quantity">
+          </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" name="ucp" placeholder="Cost Price">
+           </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" name="usp" placeholder="Sale Price">
+           </div>
+          <div class="col-md-3">
+            <button class="btn btn-primary" type="submit">Update Product</button>
+          </div>
+        </div>
+      </form>
     </main>
       </div>
     </div>
