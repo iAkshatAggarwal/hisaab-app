@@ -19,13 +19,25 @@ def make_chart(table, x, y):
 def add_dates(sales):
   date_sums = {}
   for sale in sales: #Sum up the prices for each date
-    if sale['sold_date'] in date_sums:
-      date_sums[sale['sold_date']] += sale['sale_price']
+    if sale['sale_date'] in date_sums:
+      date_sums[sale['sale_date']] += sale['sale_amt']
     else:
-      date_sums[sale['sold_date']] = sale['sale_price']
+      date_sums[sale['sale_date']] = sale['sale_amt']
     #New list of dictionaries with the summed prices for each date
-  output = [{'sold_date': sold_date, 'sale_price': sale_price} for sold_date, sale_price in date_sums.items()]
+  output = [{'sale_date': sale_date, 'sale_amt': sale_amt} for sale_date, sale_amt in date_sums.items()]
   return output
+
+def get_cp(products, pname):
+    for product in products:
+        if product["pname"] == pname:
+            return product["pcp"]
+    return None
+
+def get_pqty(products, pname):
+    for product in products:
+        if product["pname"] == pname:
+            return product["pqty"]
+    return None
 
 # def predict_growth():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)

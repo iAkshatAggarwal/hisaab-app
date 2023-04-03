@@ -62,6 +62,7 @@ def show_products():
 def add_prod():
     if add_product(request.form["pname"],
                   request.form["pcp"],
+                  request.form["psp"],
                   request.form["pqty"]):
       return redirect("/products")
 
@@ -111,7 +112,7 @@ def show_sales():
       products = load_inventory()
       #For chart
       output = add_dates(sales) #adding prices for same dates 
-      data = make_chart(output, 'sold_date', 'sale_price')
+      data = make_chart(output, 'sale_date', 'sale_amt')
       return render_template('sales.html',
                              products = products,
                              sales=sales,

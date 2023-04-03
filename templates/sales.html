@@ -67,17 +67,21 @@
               <th scope="col">Product Name</th>
               <th scope="col">Quantity</th>
               <th scope="col">Price (INR)</th>
+              <th scope="col">Amount (INR)</th>
+              <th scope="col">Profit (INR)</th>
               <th scope="col">Customer Name</th>
             </tr>
           </thead>
           <tbody>
             {% for sale in sales %}
             <tr>
-              <td scope="col">{{sale['sold_date']}}</td>
-              <td scope="col">{{sale['product_name']}}</td>
-              <td scope="col">{{sale['sold_qty']}}</td>
+              <td scope="col">{{sale['sale_date']}}</td>
+              <td scope="col">{{sale['product']}}</td>
+              <td scope="col">{{sale['sale_qty']}}</td>
               <td scope="col">{{sale['sale_price']}}</td>
-              <td scope="col">{{sale['customer_date']}}</td>
+              <td scope="col">{{sale['sale_amt']}}</td>
+              <td scope="col">{{sale['sale_profit']}}</td>
+              <td scope="col">{{sale['customer']}}</td>
               <td>
                 <a class="btn btn-outline-primary" href="" role="button">Update</a>
                 <a class="btn btn-outline-danger" href="/sales/{{sale['id']}}/delete" role="button">Delete</a>

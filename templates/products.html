@@ -45,6 +45,9 @@
           <div class="col-md-2">
             <input type="text" class="form-control" name="pcp" placeholder="Cost Price">
            </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" name="psp" placeholder="Sale Price">
+           </div>
           <div class="col-md-3">
             <button class="btn btn-success" type="submit">Add Product</button>
           </div>
@@ -58,7 +61,7 @@
               <th scope="col">ID</th>
               <th scope="col">Product Name</th>
               <th scope="col">Quantity</th>
-              <th scope="col">Cost Price (INR)</th>
+              <th scope="col">Sale Price (INR)</th>
             </tr>
           </thead>
           <tbody>
@@ -67,7 +70,7 @@
               <td scope="col">{{product['pid']}}</td>
               <td scope="col">{{product['pname']}}</td>
               <td scope="col">{{product['pqty']}}</td>
-              <td scope="col">{{product['pcp']}}</td>
+              <td scope="col">{{product['psp']}}</td>
               <td>
                 <a class="btn btn-outline-primary" href="" role="button">Update</a>
                 <a class="btn btn-outline-danger" href="/products/{{product['pid']}}/delete" role="button">Delete</a>
@@ -81,7 +84,6 @@
     </main>
       </div>
     </div>
-    
     {% include 'script.html' %}
     {% include 'chart.html' %}
   </body>

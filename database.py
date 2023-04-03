@@ -1,6 +1,7 @@
 import os
 import datetime
 from sqlalchemy import create_engine, text
+from utils import get_cp, get_pqty
 
 conn_string = os.environ['DB_CONNECTION_STRING']
 
@@ -56,11 +57,15 @@ def load_ledgers():
     return ledgers
 
 #-------------------------------Products-------------------------------
-def add_product(pname, pcp, pqty):
+def add_product(pname, pcp, psp, pqty):
   with engine.connect() as conn:
-    query = text("INSERT INTO product(pname, pcp, pqty) VALUES (:pname, :pcp, :pqty)")
+    query = text("INSERT INTO product(pname, pcp, psp, pqty) VALUES (:pname, :pcp, :psp, :pqty)")
     conn.execute(query,
-                 {'pname': pname, 'pcp': pcp, 'pqty': pqty}
+                 {'pname': pname,
+                  'pcp': pcp,
+                  'psp': psp,
+                  'pqty': pqty
+                 }
     )
     return True
 
@@ -100,17 +105,30 @@ def delete_ledger(id):
 #-------------------------------Sales-------------------------------
 def add_sale(pname, qty, price, customer):
   with engine.connect() as conn:
-    if customer == "":
-      customer = "CASH"
-    query = text("INSERT INTO sales(product_name, sold_date, sold_qty, sale_price, customer_name) VALUES (:product_name, :sold_date, :sold_qty, :sale_price, :customer_name)")
+    #to get cp
+    products = load_inventory()
+    amount = int(qty) * int(price)
+    cp = get_cp(products, pname)
+    new_qty = get_pqty(products, pname) - int(qty)
+    profit = amount - (int(qty) * int(cp))
+    query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer)")
     conn.execute(query,
                  {
-                  'product_name': pname, 
-                  'sold_date': datetime.datetime.now(), 
-                  'sold_qty': qty, 
+                  'product': pname, 
+                  'sale_date': datetime.datetime.now(), 
+                  'sale_qty': qty, 
                   'sale_price': price,
-                  'customer_name': customer
+                  'sale_amt': amount,
+                  'sale_profit': profit,
+                  'customer': customer
                  }
+    )
+    query2 = text("UPDATE product SET pqty = :pqty  WHERE pname = :pname")
+    conn.execute(query2,
+                {
+                  'pqty': new_qty,
+                  'pname': pname
+                }
     )
     return True
 
