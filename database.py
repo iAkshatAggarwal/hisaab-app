@@ -56,7 +56,16 @@ def load_ledgers():
         ledgers.append(row_dic)
     return ledgers
 
-#-------------------------------Products-------------------------------
+def load_expenses():
+  with engine.connect() as conn:
+    response = conn.execute(text("SELECT * from expenses"))
+    expenses = []
+    for row in response.fetchall():
+        row_dic = dict(zip(response.keys(), row))
+        expenses.append(row_dic)
+    return expenses
+
+#------------------------------- Products -------------------------------
 def add_product(pname, pcp, psp, pqty):
   with engine.connect() as conn:
     query = text("INSERT INTO product(pname, pcp, psp, pqty) VALUES (:pname, :pcp, :psp, :pqty)")
@@ -79,7 +88,7 @@ def update_product(id):
     conn.execute(text("UPDATE product SET {} = %s WHERE id = %s"), {'val': id})
     return True
 
-#-------------------------------Ledgers-------------------------------
+#------------------------------- Ledgers -------------------------------
 def add_ledger(wname, credit, debit):
   with engine.connect() as conn:
     if credit == "":
@@ -102,7 +111,7 @@ def delete_ledger(id):
     conn.execute(text("DELETE FROM ledger WHERE wid = :val"), {'val': id})
     return True
 
-#-------------------------------Sales-------------------------------
+#------------------------------- Sales -------------------------------
 def add_sale(pname, qty, price, customer, status):
   with engine.connect() as conn:
     #to get cp
@@ -136,4 +145,23 @@ def add_sale(pname, qty, price, customer, status):
 def delete_sale(id):
   with engine.connect() as conn:
     conn.execute(text("DELETE FROM sales WHERE id = :val"), {'val': id})
+    return True
+
+#------------------------------- Expenses -------------------------------
+
+def add_expense(type, eprice):
+  with engine.connect() as conn:
+    query = text("INSERT INTO expenses(type, eprice, date) VALUES (:type, :eprice, :date)")
+    conn.execute(query,
+                 {
+                  'type': type, 
+                  'eprice': eprice, 
+                  'date': datetime.datetime.now()
+                 }
+    )
+    return True
+
+def delete_expense(id):
+  with engine.connect() as conn:
+    conn.execute(text("DELETE FROM expenses WHERE id = :val"), {'val': id})
     return True

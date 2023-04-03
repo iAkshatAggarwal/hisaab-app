@@ -16,7 +16,7 @@ def make_chart(table, x, y):
   data = {'labels':labels, 'values':values}
   return data
 
-def get_cards(sales):
+def get_cards_revenue(sales):
   gross_revenue = 0
   gross_profit = 0
   for sale in sales:
@@ -24,7 +24,13 @@ def get_cards(sales):
     gross_profit += sale['sale_profit']
   return gross_revenue, gross_profit   
 
-def add_dates(sales):
+def get_cards_expenses(expenses):
+  gross_expenses = 0
+  for expense in expenses:
+    gross_expenses += expense['eprice']
+  return gross_expenses
+
+def add_dates_sales(sales):
   date_sums = {}
   for sale in sales: #Sum up the prices for each date
     if sale['sale_date'] in date_sums:
@@ -33,6 +39,17 @@ def add_dates(sales):
       date_sums[sale['sale_date']] = sale['sale_amt']
     #New list of dictionaries with the summed prices for each date
   output = [{'sale_date': sale_date, 'sale_amt': sale_amt} for sale_date, sale_amt in date_sums.items()]
+  return output
+
+def add_dates_expenses(expenses):
+  date_sums = {}
+  for expense in expenses: #Sum up the prices for each date
+    if expense['date'] in date_sums:
+      date_sums[expense['date']] += expense['eprice']
+    else:
+      date_sums[expense['date']] = expense['eprice']
+    #New list of dictionaries with the summed prices for each date
+  output = [{'date': date, 'eprice': eprice} for date, eprice in date_sums.items()]
   return output
 
 def get_cp(products, pname):

@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, make_chart, add_dates, get_cards
-from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, add_product, delete_product, add_ledger, delete_ledger, add_sale, delete_sale
+from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses
+from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, add_ledger, delete_ledger, add_sale, delete_sale, add_expense, delete_expense
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -34,22 +34,31 @@ def logout():
     # redirect to login page
     return redirect(url_for('login'))
           
-#-------------------------------Dashboard-------------------------------
+#------------------------------- Dashboard -------------------------------
 @app.route('/dashboard')
 def dashboard():
     # check if user is authenticated
     if session.get('authenticated'):
       # user is authenticated, render dashboard page
         sales = load_sales()
-        g_revenue , g_profit = get_cards(sales)
+        expenses = load_expenses()
+        g_revenue , g_profit = get_cards_revenue(sales)
+        g_expenses = get_cards_expenses(expenses)
+        n_revenue = g_revenue - g_expenses
+        n_profit = g_profit - g_expenses
+        ebitda = "{:.2%}".format((n_profit/n_revenue))
         return render_template('dashboard.html',
                                g_revenue=g_revenue,
-                               g_profit=g_profit)
+                               g_profit=g_profit,
+                               g_expenses=g_expenses,
+                               n_revenue=n_revenue,
+                               n_profit=n_profit,
+                               ebitda=ebitda)
     else:
         # user is not authenticated, redirect to login page
         return redirect(url_for('login'))
 
-#-------------------------------Products-------------------------------
+#------------------------------- Products -------------------------------
 @app.route('/products')
 def show_products():
   if session.get('authenticated'):
@@ -80,7 +89,7 @@ def del_prod(pid):
     
 #     return redirect('/run_record')
 
-#-------------------------------Ledgers-------------------------------
+#------------------------------- Ledgers -------------------------------
 @app.route('/ledgers')
 def show_ledgers():
   if session.get('authenticated'):
@@ -108,14 +117,14 @@ def del_led(wid):
     if delete_ledger(wid):
       return redirect("/ledgers")  
 
-#-------------------------------Sales-------------------------------
+#------------------------------- Sales -------------------------------
 @app.route('/sales')
 def show_sales():
   if session.get('authenticated'):
       sales = load_sales()
       products = load_inventory()
       #For chart
-      output = add_dates(sales) #adding amount for same dates 
+      output = add_dates_sales(sales) #adding amount for same dates 
       data = make_chart(output, 'sale_date', 'sale_amt')
       return render_template('sales.html',
                              products = products,
@@ -139,6 +148,31 @@ def del_sales(id):
     if delete_sale(id):
       return redirect("/sales") 
 
+#------------------------------- Expenses -------------------------------
+@app.route('/expenses')
+def show_expenses():
+  if session.get('authenticated'):
+      expenses = load_expenses()
+      output = add_dates_expenses(expenses)
+      data = make_chart(output, 'date', 'eprice')
+      return render_template('expenses.html',
+                              expenses=expenses,
+                              data=data)
+  else:
+      return redirect(url_for('login'))
+
+@app.route("/add_expense", methods=["GET", "POST"])
+def add_ex():
+    if add_expense(request.form["type"],
+                  request.form["eprice"]):
+      return redirect("/expenses")
+
+@app.route("/expenses/<id>/delete")
+def del_ex(id):
+    if delete_expense(id):
+      return redirect("/expenses")  
+
+      
 # @app.route('/revenue')
 # def revenue():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)

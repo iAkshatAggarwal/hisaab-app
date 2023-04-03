@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Hisaab: Expenses</title>
+    <link rel="shortcut icon" href="/static/growth.svg">
+    {% include 'bootstrap.html' %}
+    <style>
+      .sidebar #expenses {
+        color: #2470dc;
+      }
+    </style>
+    
+    <link href="/static/css/dashboard.css" rel="stylesheet">
+  </head>
+  
+  <body>
+    {% include 'dash_nav.html' %} 
+    
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Expenses</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar" class="align-text-bottom"></span>
+            This week
+          </button>
+        </div>
+      </div>
+      <!-- Chart -->
+      <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+      <!-- Tables -->
+      <h2>Expenses</h2>
+      <!-- Add transaaction form -->
+      <form class="mb-5 mt-4" action="/add_expense" method="POST">
+        <div class="mx-auto row">
+          <div class="col-md-2">
+            <select id="option" name="type" class="form-control">
+              <option value="Logistics">Logistics</option>
+              <option value="Salary">Salary</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+              <input type="text" class="form-control" name="eprice" placeholder="Credit">
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-success" type="submit">Add Expense</button>
+          </div>
+        </div>
+      </form>
+      <!-- Show transactions -->
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Date</th>
+              <th scope="col">Type</th>
+              <th scope="col">Expense (INR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for expense in expenses %}
+            <tr>
+              <td scope="col">{{expense['id']}}</td>
+              <td scope="col">{{expense['date']}}</td>
+              <td scope="col">{{expense['type']}}</td>
+              <td scope="col">{{expense['eprice']}}</td>
+              <td>
+                <a class="btn btn-outline-primary" href="" role="button">Update</a>
+                <a class="btn btn-outline-danger" href="/expenses/{{expense['id']}}/delete" role="button">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+      </div>
+    </div>
+    
+    {% include 'script.html' %}
+    {% include 'chart.html' %}
+  </body>
+</html>
