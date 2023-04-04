@@ -70,12 +70,14 @@
           <tbody>
             {% for product in products %}
             <tr>
-              <td scope="col">{{product['pid']}}</td>
-              <td scope="col">{{product['pname']}}</td>
-              <td scope="col">{{product['pqty']}}</td>
-              <td scope="col">{{product['pcp']}}</td>
-              <td scope="col">{{product['psp']}}</td>
+              <td scope="col" contenteditable="false">{{product['pid']}}</td>
+              <td scope="col" contenteditable="false">{{product['pname']}}</td>
+              <td scope="col" contenteditable="false">{{product['pqty']}}</td>
+              <td scope="col" contenteditable="false">{{product['pcp']}}</td>
+              <td scope="col" contenteditable="false">{{product['psp']}}</td>
               <td>
+                <a class="btn btn-outline-primary" href="" role="button" onclick="editRow(this)">Update</a>
+                <a class="btn btn-outline-success d-none" href="" role="button" onclick="saveRow(this)">Save</a>
                 <a class="btn btn-outline-danger" href="/products/{{product['pid']}}/delete" role="button">Delete</a>
               </td>
             </tr>
@@ -83,37 +85,59 @@
           </tbody>
         </table>
       </div>
-      
-      <!-- Update Inventory -->
-      <form class="mb-5 mt-4" action="/products/update" method="POST">
-        <div class="mx-auto row">
-          <div class="col-md-2">
-            <select id="option" name="uname" class="form-control">
-              {% for product in products %}
-              <option value="{{ product['pname'] }}">
-                {{ product['pname'] }}
-              </option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-2">
-              <input type="text" class="form-control" name="uqty" placeholder="New Quantity">
-          </div>
-          <div class="col-md-2">
-            <input type="text" class="form-control" name="ucp" placeholder="Cost Price">
-           </div>
-          <div class="col-md-2">
-            <input type="text" class="form-control" name="usp" placeholder="Sale Price">
-           </div>
-          <div class="col-md-3">
-            <button class="btn btn-primary" type="submit">Update Product</button>
-          </div>
-        </div>
-      </form>
     </main>
-      </div>
-    </div>
     {% include 'script.html' %}
     {% include 'chart.html' %}
+    <script>
+      function editRow(button) {
+        // Get the table row element
+        let row = button.closest("tr");
+        // Hide the "Edit" button and show the "Save" button
+        row.querySelector(".btn-outline-primary").classList.add("d-none");
+        row.querySelector(".btn-outline-success").classList.remove("d-none");
+        // Make all the table cells in the row (except Actions) editable
+        row.querySelectorAll("td:not(:last-child)").forEach((cell) => {
+          cell.setAttribute("contenteditable", "true");
+          cell.setAttribute("data-old-value", cell.textContent);
+        });
+        event.preventDefault(); // prevent scrolling up
+      }
+
+      function saveRow(button) {
+          // Get the table row element
+          let row = button.closest("tr");
+        
+          // Get the updated values of each cell
+          let pname = row.cells[1].textContent;
+          let pqty = row.cells[2].textContent;
+          let pcp = row.cells[3].textContent;
+          let psp = row.cells[4].textContent;
+          let pid = row.cells[0].textContent;
+        
+          // Send an AJAX request to update the product
+          let xhr = new XMLHttpRequest();
+          xhr.open("POST", "/products/update");
+          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+          xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+              if (xhr.status === 200) {
+                // Update successful, hide the "Save" button and show the "Update" button again
+                row.querySelector(".btn-outline-success").classList.add("d-none");
+                row.querySelector(".btn-outline-primary").classList.remove("d-none");
+                // Make all the table cells in the row non-editable
+                row.querySelectorAll("td").forEach((cell) => {
+                  cell.setAttribute("contenteditable", "false");
+                  cell.removeAttribute("data-old-value");
+                });
+              } else {
+                // Error occurred
+                console.error(xhr.responseText);
+              }
+            }
+          };
+        xhr.send(`pid=${pid}&pname=${pname}&pqty=${pqty}&pcp=${pcp}&psp=${psp}`);
+        }
+    </script>
+
   </body>
 </html>

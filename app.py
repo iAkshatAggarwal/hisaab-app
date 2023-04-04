@@ -46,7 +46,10 @@ def dashboard():
         g_expenses = get_cards_expenses(expenses)
         n_revenue = g_revenue - g_expenses
         n_profit = g_profit - g_expenses
-        ebitda = "{:.2%}".format((n_profit/n_revenue))
+        if n_revenue != 0:
+          ebitda = "{:.2%}".format((n_profit/n_revenue))
+        else:
+          ebitda = 0
         return render_template('dashboard.html',
                                g_revenue=g_revenue,
                                g_profit=g_profit,
@@ -86,10 +89,10 @@ def del_prod(pid):
 
 @app.route("/products/update", methods=["GET", "POST"])
 def mod_prod():
-    if update_product(request.form["uname"],
-                      request.form["ucp"],
-                      request.form["usp"],
-                      request.form["uqty"]):
+    if update_product(request.form.get('pname'),
+                      request.form.get('pcp'),
+                      request.form.get('psp'),
+                      request.form.get('pqty')):
       return redirect('/products')
 
 #------------------------------- Ledgers -------------------------------
