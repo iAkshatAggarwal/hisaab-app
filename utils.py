@@ -64,6 +64,22 @@ def get_pqty(products, pname):
             return product["pqty"]
     return None
 
+def calc_updated_sales(id, sales, sale_price, sale_amt, sale_profit, products, product, sale_qty):
+  cp = get_cp(products, product)
+  for sale in sales: # To update new amount and profit
+    if str(sale["id"]) == str(id):
+      sale_amt = float(sale_price) * float(sale_qty)
+      sale_profit = float(sale_amt) - (float(sale_qty) * float(cp))
+      for prod in products: # To update qty in inventory
+        if str(prod["pname"]) == str(product):
+          pname = prod["pname"] 
+          pqty = prod["pqty"]
+          if int(sale_qty) > int(sale["sale_qty"]):
+            pqty -= (int(sale_qty)- int(sale["sale_qty"]))
+          elif int(sale_qty) < int(sale["sale_qty"]):
+            pqty += (int(sale["sale_qty"]) - int(sale_qty))
+  return sale_amt, sale_profit, pname, pqty
+
 # def predict_growth():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)
 #     sales_data['month'] = pd.to_datetime(sales_data['date']).dt.to_period('M')
