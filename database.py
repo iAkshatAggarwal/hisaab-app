@@ -126,7 +126,7 @@ def add_sale(pname, qty, price, customer, status):
     products = load_inventory()
     amount = int(qty) * int(price)
     cp = get_cp(products, pname)
-    new_qty = get_pqty(products, pname) - int(qty) #upadated qty of inventory
+    new_qty = get_pqty(products, pname) - int(qty) #updated qty of inventory
     profit = amount - (int(qty) * int(cp))
     query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer, status) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer, :status)")
     conn.execute(query,
@@ -153,6 +153,47 @@ def add_sale(pname, qty, price, customer, status):
 def delete_sale(id):
   with engine.connect() as conn:
     conn.execute(text("DELETE FROM sales WHERE id = :val"), {'val': id})
+    return True
+
+def update_sale(id, sale_date, product, sale_qty, 
+                sale_price, sale_amt, sale_profit, customer, status):
+  with engine.connect() as conn:
+    sales = load_sales()
+    products = load_inventory()
+    cp = get_cp(products, product)
+    for sale in sales: # To update new amount and profit
+      if str(sale["id"]) == str(id):
+        sale_amt = float(sale_price) * float(sale_qty)
+        sale_profit = float(sale_amt) - (float(sale_qty) * float(cp))
+        for prod in products: # To update qty in inventory
+          if str(prod["pname"]) == str(product):
+            pname = prod["pname"] 
+            pqty = prod["pqty"]
+            if int(sale_qty) > int(sale["sale_qty"]):
+              pqty -= (int(sale_qty)- int(sale["sale_qty"]))
+            elif int(sale_qty) < int(sale["sale_qty"]):
+              pqty += (int(sale["sale_qty"]) - int(sale_qty))
+            query2 = text("UPDATE product SET pqty = :pqty  WHERE pname = :pname")
+            conn.execute(query2,
+                          {
+                            'pqty': pqty,
+                            'pname': pname
+                          }
+              )
+    query = (text("UPDATE sales SET id = :id, sale_date = :sale_date, product = :product, sale_qty = :sale_qty, sale_price = :sale_price, sale_amt = :sale_amt, sale_profit = :sale_profit, customer =:customer, status = :status WHERE id = :id"))
+    conn.execute(query,
+                 {
+                  'id': id,
+                  'sale_date': sale_date, 
+                  'product': product, 
+                  'sale_qty': sale_qty, 
+                  'sale_price': sale_price,
+                  'sale_amt': sale_amt,
+                  'sale_profit': sale_profit,
+                  'customer': customer,
+                  'status': status
+                 }
+    )
     return True
 
 #------------------------------- Expenses -------------------------------

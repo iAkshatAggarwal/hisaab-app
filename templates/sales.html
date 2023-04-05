@@ -69,6 +69,7 @@
         <table class="table table-striped table-sm">
           <thead>
             <tr>
+              <th scope="col">ID</th>
               <th scope="col">Date</th>
               <th scope="col">Product Name</th>
               <th scope="col">Quantity</th>
@@ -82,16 +83,18 @@
           <tbody>
             {% for sale in sales %}
             <tr>
-              <td scope="col">{{sale['sale_date']}}</td>
-              <td scope="col">{{sale['product']}}</td>
-              <td scope="col">{{sale['sale_qty']}}</td>
-              <td scope="col">{{sale['sale_price']}}</td>
-              <td scope="col">{{sale['sale_amt']}}</td>
-              <td scope="col">{{sale['sale_profit']}}</td>
-              <td scope="col">{{sale['customer']}}</td>
-              <td scope="col">{{sale['status']}}</td>
+              <td scope="col" contenteditable="false">{{sale['id']}}</td>
+              <td scope="col" contenteditable="false">{{sale['sale_date']}}</td>
+              <td scope="col" contenteditable="false">{{sale['product']}}</td>
+              <td scope="col" contenteditable="false">{{sale['sale_qty']}}</td>
+              <td scope="col" contenteditable="false">{{sale['sale_price']}}</td>
+              <td scope="col" contenteditable="false">{{sale['sale_amt']}}</td>
+              <td scope="col" contenteditable="false">{{sale['sale_profit']}}</td>
+              <td scope="col" contenteditable="false">{{sale['customer']}}</td>
+              <td scope="col" contenteditable="false">{{sale['status']}}</td>
               <td>
-                <a class="btn btn-outline-primary" href="" role="button">Update</a>
+                <a class="btn btn-outline-primary" href="" role="button" onclick="editRow(this)">Update</a>
+                <a class="btn btn-outline-success d-none" href="" role="button" onclick="saveRow(this)">Save</a>
                 <a class="btn btn-outline-danger" href="/sales/{{sale['id']}}/delete" role="button">Delete</a>
               </td>
             </tr>
@@ -104,5 +107,6 @@
     </div>
     {% include 'script.html' %}
     {% include 'chart.html' %}
+    <script src="/static/js/sales.js"></script>
   </body>
 </html>
