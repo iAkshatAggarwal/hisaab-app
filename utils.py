@@ -80,6 +80,32 @@ def calc_updated_sales(id, sales, sale_price, sale_amt, sale_profit, products, p
             pqty += (int(sale["sale_qty"]) - int(sale_qty))
   return sale_amt, sale_profit, pname, pqty
 
+def top_products(sales):
+    # Create a dictionary to store the quantity and profit for each product
+    product_dict = {}
+
+    # Loop through each sale and update the product dictionary
+    for sale in sales:
+        name = sale['product']
+        qty = sale['sale_qty']
+        profit = sale['sale_profit']
+
+        # If the product is already in the dictionary, add the quantity and profit
+        if name in product_dict:
+            product_dict[name]['qty'] += qty
+            product_dict[name]['profit'] += profit
+        # If the product is not in the dictionary, add it with the quantity and profit
+        else:
+            product_dict[name] = {'name': name, 'qty': qty, 'profit': profit}
+
+    # Sort the products by quantity and profit in descending order and take the top 10
+    sorted_products_qty = sorted(product_dict.values(), key=lambda x: x['qty'], reverse=True)[:10]
+    sorted_products_profit = sorted(product_dict.values(), key=lambda x: x['profit'], reverse=True)[:10]
+
+    # Return separate lists of dictionaries for the top products by quantity and profit
+    return (sorted_products_qty, sorted_products_profit)
+
+
 # def predict_growth():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)
 #     sales_data['month'] = pd.to_datetime(sales_data['date']).dt.to_period('M')

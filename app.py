@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses
+from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, top_products
 from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
@@ -42,6 +42,7 @@ def dashboard():
       # user is authenticated, render dashboard page
         sales = load_sales()
         expenses = load_expenses()
+        expenses = load_expenses()
         g_revenue , g_profit = get_cards_revenue(sales)
         g_expenses = get_cards_expenses(expenses)
         n_revenue = g_revenue - g_expenses
@@ -50,13 +51,25 @@ def dashboard():
           ebitda = "{:.2%}".format((n_profit/n_revenue))
         else:
           ebitda = 0
+        # For Daily Sales Chart
+        daily_sales = add_dates_sales(sales) #adding amount for same dates 
+        daily_sales_data = make_chart(daily_sales, 'sale_date', 'sale_amt')
+        # For Daily Expenses Chart
+        daily_expenses = add_dates_expenses(expenses)
+        daily_expenses_data = make_chart(daily_expenses, 'date', 'eprice')
+        top_products_qty, top_products_profit = top_products(sales)
+        
         return render_template('dashboard.html',
                                g_revenue=g_revenue,
                                g_profit=g_profit,
                                g_expenses=g_expenses,
                                n_revenue=n_revenue,
                                n_profit=n_profit,
-                               ebitda=ebitda)
+                               ebitda=ebitda,
+                               daily_sales_data=daily_sales_data,
+                               daily_expenses_data=daily_expenses_data,
+                               top_products_qty=top_products_qty,
+                               top_products_profit=top_products_profit)
     else:
         # user is not authenticated, redirect to login page
         return redirect(url_for('login'))
