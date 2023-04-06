@@ -218,3 +218,16 @@ def delete_expense(id):
   with engine.connect() as conn:
     conn.execute(text("DELETE FROM expenses WHERE id = :val"), {'val': id})
     return True
+
+def update_expense(id, date, type, eprice):
+  with engine.connect() as conn:
+    query = (text("UPDATE expenses SET date =:date, type =:type, eprice =:eprice WHERE id = :id"))
+    conn.execute(query,
+                 {
+                  'id': id, 
+                  'date': date, 
+                  'type': type, 
+                  'eprice': eprice
+                 }
+    )
+    return True

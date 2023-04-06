@@ -65,12 +65,13 @@
           <tbody>
             {% for expense in expenses %}
             <tr>
-              <td scope="col">{{expense['id']}}</td>
-              <td scope="col">{{expense['date']}}</td>
-              <td scope="col">{{expense['type']}}</td>
-              <td scope="col">{{expense['eprice']}}</td>
+              <td scope="col" contenteditable="false">{{expense['id']}}</td>
+              <td scope="col" contenteditable="false">{{expense['date']}}</td>
+              <td scope="col" contenteditable="false">{{expense['type']}}</td>
+              <td scope="col" contenteditable="false">{{expense['eprice']}}</td>
               <td>
-                <a class="btn btn-outline-primary" href="" role="button">Update</a>
+                <a class="btn btn-outline-primary" href="" role="button" onclick="editRow(this)">Update</a>
+                <a class="btn btn-outline-success d-none" href="" role="button" onclick="saveRow(this)">Save</a>
                 <a class="btn btn-outline-danger" href="/expenses/{{expense['id']}}/delete" role="button">Delete</a>
               </td>
             </tr>
@@ -81,8 +82,8 @@
     </main>
       </div>
     </div>
-    
     {% include 'script.html' %}
     {% include 'chart.html' %}
+    <script src="/static/js/expenses.js"></script>
   </body>
 </html>

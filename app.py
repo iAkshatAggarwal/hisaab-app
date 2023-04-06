@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
 from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses
-from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense
+from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -198,7 +198,15 @@ def add_ex():
 @app.route("/expenses/<id>/delete")
 def del_ex(id):
     if delete_expense(id):
-      return redirect("/expenses")  
+      return redirect("/expenses") 
+
+@app.route("/expenses/update", methods=["GET", "POST"])
+def mod_expense():
+    if update_expense(request.form.get('id'),
+                      request.form.get('date'),
+                      request.form.get('type'),
+                      request.form.get('eprice')):
+      return redirect('/expenses')
 
       
 # @app.route('/revenue')
