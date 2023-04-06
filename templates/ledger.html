@@ -72,13 +72,14 @@
           <tbody>
             {% for ledger in ledgers %}
             <tr>
-              <td scope="col">{{ledger['wid']}}</td>
-              <td scope="col">{{ledger['wname']}}</td>
-              <td scope="col">{{ledger['ttime']}}</td>
-              <td scope="col">{{ledger['credit']}}</td>
-              <td scope="col">{{ledger['debit']}}</td>
+              <td scope="col" contenteditable="false">{{ledger['wid']}}</td>
+              <td scope="col" contenteditable="false">{{ledger['wname']}}</td>
+              <td scope="col" contenteditable="false">{{ledger['ttime']}}</td>
+              <td scope="col" contenteditable="false">{{ledger['credit']}}</td>
+              <td scope="col" contenteditable="false">{{ledger['debit']}}</td>
               <td>
-                <a class="btn btn-outline-primary" href="" role="button">Update</a>
+                <a class="btn btn-outline-primary" href="" role="button" onclick="editRow(this)">Update</a>
+                <a class="btn btn-outline-success d-none" href="" role="button" onclick="saveRow(this)">Save</a>
                 <a class="btn btn-outline-danger" href="/ledgers/{{ledger['wid']}}/delete" role="button">Delete</a>
               </td>
             </tr>
@@ -89,8 +90,8 @@
     </main>
       </div>
     </div>
-    
     {% include 'script.html' %}
     {% include 'chart.html' %}
+    <script src="/static/js/ledger.js"></script>
   </body>
 </html>

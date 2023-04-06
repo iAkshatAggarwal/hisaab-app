@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
 from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses
-from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense
+from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -123,6 +123,15 @@ def del_led(wid):
     if delete_ledger(wid):
       return redirect("/ledgers")  
 
+@app.route("/ledgers/update", methods=["GET", "POST"])
+def mod_led():
+    if update_ledger(request.form.get('wid'),
+                      request.form.get('wname'),
+                      request.form.get('ttime'),
+                      request.form.get('credit'),
+                      request.form.get('debit')):
+      return redirect('/ledgers')
+
 #------------------------------- Sales -------------------------------
 @app.route('/sales')
 def show_sales():
@@ -165,7 +174,7 @@ def mod_sale():
                 request.form.get('sale_profit'),
                 request.form.get('customer'),
                 request.form.get('status')):
-                  return redirect('/sales')
+      return redirect("/sales")
 
 #------------------------------- Expenses -------------------------------
 @app.route('/expenses')

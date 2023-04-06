@@ -119,6 +119,20 @@ def delete_ledger(id):
     conn.execute(text("DELETE FROM ledger WHERE wid = :val"), {'val': id})
     return True
 
+def update_ledger(wid, wname, ttime, credit, debit):
+  with engine.connect() as conn:
+    query = (text("UPDATE ledger SET wname =:wname, ttime =:ttime, credit =:credit, debit =:debit WHERE wid = :wid"))
+    conn.execute(query,
+                 {
+                  'wid': wid, 
+                  'wname': wname, 
+                  'ttime': ttime, 
+                  'credit': credit, 
+                  'debit': debit
+                 }
+    )
+    return True
+    
 #------------------------------- Sales -------------------------------
 def add_sale(pname, qty, price, customer, status):
   with engine.connect() as conn:
