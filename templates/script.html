@@ -22,3 +22,37 @@
     });
   });
 </script>
+
+<!-- To select the option  -->
+<script>
+  const dropdownSelected = document.getElementById('dropdownSelected');
+  const dropdownMenu = document.getElementById('dropdownMenu');
+
+  // Get the current URL path
+  const currentPath = window.location.pathname;
+
+  // Find the matching dropdown item based on the current URL
+  const matchingItem = [...dropdownMenu.children].find(item => {
+    const link = item.querySelector('a');
+    return link && link.getAttribute('href') === currentPath;
+  });
+
+  // Update the dropdown button text to the matching item
+  if (matchingItem) {
+    dropdownSelected.textContent = matchingItem.querySelector('a').textContent;
+  }
+
+  dropdownMenu.addEventListener('click', (event) => {
+    // Get the text content of the clicked item
+    const selectedItem = event.target.textContent;
+
+    // Update the dropdown button text to the selected item
+    dropdownSelected.textContent = selectedItem;
+
+    // Allow the default link behavior for the selected item
+    const selectedLink = event.target.closest('a');
+    if (selectedLink) {
+      selectedLink.click();
+    }
+  });
+</script>

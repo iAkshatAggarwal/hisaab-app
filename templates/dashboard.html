@@ -24,11 +24,11 @@
             <button type="button" class="btn btn-sm btn-outline-secondary" id="exportButton">Export</button>
           </div>
           <div class="dropdown">
-            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button id="dropdownButton" class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
               <span data-feather="calendar" class="align-text-bottom"></span>
-              All time
+              <span id="dropdownSelected">Today</span>
             </button>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu" id="dropdownMenu">
               <li><a class="dropdown-item" href="/dashboard/today">Today</a></li>
               <li><a class="dropdown-item" href="/dashboard/thisweek">This week</a></li>
               <li><a class="dropdown-item" href="/dashboard/thismonth">This month</a></li>

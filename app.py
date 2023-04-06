@@ -23,7 +23,7 @@ def login():
                       request.form["username"],
                       request.form["password"]):
             session['authenticated'] = True
-            return redirect(url_for('dashboard'))
+            return redirect('/dashboard/today')
                         
         else: 
             return render_template('login.html', login_error = True)
