@@ -23,10 +23,19 @@
             <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
             <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
           </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-            <span data-feather="calendar" class="align-text-bottom"></span>
-            This week
-          </button>
+          <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span data-feather="calendar" class="align-text-bottom"></span>
+              All time
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/dashboard/today">Today</a></li>
+              <li><a class="dropdown-item" href="/dashboard/thisweek">This week</a></li>
+              <li><a class="dropdown-item" href="/dashboard/thismonth">This month</a></li>
+              <li><a class="dropdown-item" href="/dashboard/thisquarter">This quarter</a></li>
+              <li><a class="dropdown-item" href="/dashboard/thisyear">This year</a></li>
+            </ul>
+          </div>
         </div>
       </div>
       <!--Cards -->
@@ -192,7 +201,7 @@
               }
           }
       });
-      
     </script>
+    <script src="/static/js/dashboard.js"></script>
   </body>
 </html>

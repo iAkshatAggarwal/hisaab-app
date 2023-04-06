@@ -1,6 +1,7 @@
 import os
+from datetime import date, timedelta
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, top_products
+from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, top_products, extract_interval_sales_data, extract_interval_expenses_data
 from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
@@ -35,41 +36,55 @@ def logout():
     return redirect(url_for('login'))
           
 #------------------------------- Dashboard -------------------------------
-@app.route('/dashboard')
-def dashboard():
+
+@app.route('/dashboard/<interval>')
+def dashboard(interval="today"):
     # check if user is authenticated
     if session.get('authenticated'):
       # user is authenticated, render dashboard page
-        sales = load_sales()
-        expenses = load_expenses()
-        expenses = load_expenses()
-        g_revenue , g_profit = get_cards_revenue(sales)
-        g_expenses = get_cards_expenses(expenses)
-        n_revenue = g_revenue - g_expenses
-        n_profit = g_profit - g_expenses
-        if n_revenue != 0:
-          ebitda = "{:.2%}".format((n_profit/n_revenue))
-        else:
-          ebitda = 0
-        # For Daily Sales Chart
-        daily_sales = add_dates_sales(sales) #adding amount for same dates 
-        daily_sales_data = make_chart(daily_sales, 'sale_date', 'sale_amt')
-        # For Daily Expenses Chart
-        daily_expenses = add_dates_expenses(expenses)
-        daily_expenses_data = make_chart(daily_expenses, 'date', 'eprice')
-        top_products_qty, top_products_profit = top_products(sales)
-        
-        return render_template('dashboard.html',
-                               g_revenue=g_revenue,
-                               g_profit=g_profit,
-                               g_expenses=g_expenses,
-                               n_revenue=n_revenue,
-                               n_profit=n_profit,
-                               ebitda=ebitda,
-                               daily_sales_data=daily_sales_data,
-                               daily_expenses_data=daily_expenses_data,
-                               top_products_qty=top_products_qty,
-                               top_products_profit=top_products_profit)
+      end_date =  date.today()
+      start_date = date.today()
+      if interval == 'thisweek':
+        start_date = end_date - timedelta(days=7)
+      elif interval == 'thismonth':
+        start_date =  end_date.replace(day=1) - timedelta(days=1)
+      elif interval == 'thisquarter':
+        month = end_date.month - 3 if end_date.month > 3 else end_date.month + 9
+        start_date = date(end_date.year, month, 1) - timedelta(days=1)
+      elif interval == 'thisyear':
+        start_date = end_date.replace(year=end_date.year - 1)
+
+      sales = load_sales()
+      expenses = load_expenses()
+      interval_sales = extract_interval_sales_data(sales, start_date, end_date)
+      interval_expenses = extract_interval_expenses_data(expenses, start_date, end_date)
+      g_revenue , g_profit = get_cards_revenue(interval_sales)
+      g_expenses = get_cards_expenses(interval_expenses)
+      n_revenue = g_revenue - g_expenses
+      n_profit = g_profit - g_expenses
+      if n_revenue != 0:
+        ebitda = "{:.2%}".format((n_profit/n_revenue))
+      else:
+        ebitda = 0
+      # For Daily Sales Chart
+      daily_sales = add_dates_sales(interval_sales) #adding amount for same dates 
+      daily_sales_data = make_chart(daily_sales, 'sale_date', 'sale_amt')
+      # For Daily Expenses Chart
+      daily_expenses = add_dates_expenses(interval_expenses)
+      daily_expenses_data = make_chart(daily_expenses, 'date', 'eprice')
+      top_products_qty, top_products_profit = top_products(sales)
+      
+      return render_template('dashboard.html',
+                             g_revenue=g_revenue,
+                             g_profit=g_profit,
+                             g_expenses=g_expenses,
+                             n_revenue=n_revenue,
+                             n_profit=n_profit,
+                             ebitda=ebitda,
+                             daily_sales_data=daily_sales_data,
+                             daily_expenses_data=daily_expenses_data,
+                             top_products_qty=top_products_qty,
+                             top_products_profit=top_products_profit)
     else:
         # user is not authenticated, redirect to login page
         return redirect(url_for('login'))
@@ -109,6 +124,7 @@ def mod_prod():
       return redirect('/products')
 
 #------------------------------- Ledgers -------------------------------
+
 @app.route('/ledgers')
 def show_ledgers():
   if session.get('authenticated'):
@@ -221,17 +237,6 @@ def mod_expense():
                       request.form.get('eprice')):
       return redirect('/expenses')
 
-      
-# @app.route('/revenue')
-# def revenue():
-#     sales_data = pd.read_sql_table('sale', con=db.engine)
-#     revenue = (sales_data['quantity'] * sales_data['product'].apply(lambda x: x.price)).sum()
-#     return render_template('revenue.html', revenue=revenue)
-
-# @app.route('/growth')
-# def growth():
-#     next_month_sales = predict_growth()
-#     return render_template('growth.html', next_month_sales=next_month_sales)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

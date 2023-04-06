@@ -1,3 +1,4 @@
+import datetime
 # from sklearn.linear_model import LinearRegression
 
 def check_user(users, username, password):
@@ -105,6 +106,26 @@ def top_products(sales):
     # Return separate lists of dictionaries for the top products by quantity and profit
     return (sorted_products_qty, sorted_products_profit)
 
+def extract_interval_sales_data(data_list, start_date, end_date):
+    extracted_data = []
+    for data in data_list:
+        if start_date <= data["sale_date"] <= end_date:
+            extracted_data.append(data)
+    return extracted_data
+
+def extract_interval_expenses_data(data_list, start_date, end_date):
+    extracted_data = []
+    for data in data_list:
+        if start_date <= data["date"] <= end_date:
+            extracted_data.append(data)
+    return extracted_data
+
+def extract_interval_products_data(data_list, start_date, end_date):
+    extracted_data = []
+    for data in data_list:
+        if start_date <= data["date"] <= end_date:
+            extracted_data.append(data)
+    return extracted_data
 
 # def predict_growth():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)
