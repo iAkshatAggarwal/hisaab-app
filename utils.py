@@ -127,6 +127,16 @@ def extract_interval_products_data(data_list, start_date, end_date):
             extracted_data.append(data)
     return extracted_data
 
+def add_deleted_sale_qty_to_inventory(products, product, sale_qty):
+    for prod in products: # To update qty in inventory
+      if str(prod["pname"]) == str(product):
+        pqty = int(prod["pqty"])
+        pqty += int(sale_qty)
+        break
+    return pqty
+    
+          
+
 # def predict_growth():
 #     sales_data = pd.read_sql_table('sale', con=db.engine)
 #     sales_data['month'] = pd.to_datetime(sales_data['date']).dt.to_period('M')

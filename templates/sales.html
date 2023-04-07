@@ -23,10 +23,20 @@
             <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
             <button type="button" class="btn btn-sm btn-outline-secondary" id="exportButton">Export</button>
           </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-            <span data-feather="calendar" class="align-text-bottom"></span>
-            This week
-          </button>
+          <div class="dropdown">
+            <button id="dropdownButton" class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <span data-feather="calendar" class="align-text-bottom"></span>
+              <span id="dropdownSelected">Today</span>
+            </button>
+            <ul class="dropdown-menu" id="dropdownMenu">
+              <li><a class="dropdown-item" href="/sales/today">Today</a></li>
+              <li><a class="dropdown-item" href="/sales/thisweek">This week</a></li>
+              <li><a class="dropdown-item" href="/sales/thismonth">This month</a></li>
+              <li><a class="dropdown-item" href="/sales/thisquarter">This quarter</a></li>
+              <li><a class="dropdown-item" href="/sales/thisyear">This year</a></li>
+              <li><a class="dropdown-item" href="/sales/alltime">All time</a></li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -95,7 +105,9 @@
               <td>
                 <a class="btn btn-outline-primary" href="" role="button" onclick="editRow(this)">Update</a>
                 <a class="btn btn-outline-success d-none" href="" role="button" onclick="saveRow(this)">Save</a>
-                <a class="btn btn-outline-danger" href="/sales/{{sale['id']}}/delete" role="button">Delete</a>
+                <a class="btn btn-outline-danger" role="button" onclick="deleteRow(this)" data-sale-id="{{sale['id']}}" data-product="{{sale['product']}}" data-sale-qty="{{sale['sale_qty']}}" data-sale-date="{{sale['sale_date']}}">
+                  Delete
+                </a>
               </td>
             </tr>
             {% endfor %}

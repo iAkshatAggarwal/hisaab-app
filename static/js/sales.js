@@ -50,3 +50,15 @@ function saveRow(button) {
     };
   xhr.send(`id=${id}&sale_date=${sale_date}&product=${product}&sale_qty=${sale_qty}&sale_price=${sale_price}&sale_amt=${sale_amt}&sale_profit=${sale_profit}&customer=${customer}&status=${status}`);
 }
+
+function deleteRow(button) {
+  const saleId = button.dataset.saleId;
+  const product = button.dataset.product;
+  const saleQty = button.dataset.saleQty;
+  const saleDate = button.dataset.saleDate;
+  const confirmed = confirm(`Are you sure you want to delete the sale on ${saleDate} for ${saleQty} pcs of ${product}  ?`);
+  if (confirmed) {
+    window.location.href = `/sales/${saleId}/delete?product=${encodeURIComponent(product)}&sale_qty=${encodeURIComponent(saleQty)}`;
+  }
+}
+

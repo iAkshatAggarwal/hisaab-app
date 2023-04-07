@@ -164,8 +164,11 @@ def add_sale(pname, qty, price, customer, status):
     )
     return True
 
-def delete_sale(id):
+def delete_sale(id, pname, pqty):
   with engine.connect() as conn:
+    # To update qty in inventory or product table
+    conn.execute(text("UPDATE product SET pqty = :pqty  WHERE pname = :pname"), {'pqty': pqty, 'pname': pname})
+    # To delete sale from sales table
     conn.execute(text("DELETE FROM sales WHERE id = :val"), {'val': id})
     return True
 

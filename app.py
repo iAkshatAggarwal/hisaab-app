@@ -1,7 +1,7 @@
 import os
 from datetime import date, timedelta
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, top_products, extract_interval_sales_data, extract_interval_expenses_data
+from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory
 from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
@@ -42,6 +42,9 @@ def dashboard(interval="today"):
     # check if user is authenticated
     if session.get('authenticated'):
       # user is authenticated, render dashboard page
+      sales = load_sales()
+      expenses = load_expenses()
+      # Assigning time intervals
       end_date =  date.today()
       start_date = date.today()
       if interval == 'thisweek':
@@ -53,9 +56,9 @@ def dashboard(interval="today"):
         start_date = date(end_date.year, month, 1) - timedelta(days=1)
       elif interval == 'thisyear':
         start_date = end_date.replace(year=end_date.year - 1)
+      elif interval == 'alltime':
+        start_date = min(sale['sale_date'] for sale in sales)
 
-      sales = load_sales()
-      expenses = load_expenses()
       interval_sales = extract_interval_sales_data(sales, start_date, end_date)
       interval_expenses = extract_interval_expenses_data(expenses, start_date, end_date)
       g_revenue , g_profit = get_cards_revenue(interval_sales)
@@ -167,6 +170,7 @@ def show_sales():
   if session.get('authenticated'):
       sales = load_sales()
       products = load_inventory()
+      #interval_sales = extract_interval_sales_data(sales, start_date, end_date)
       #For chart
       output = add_dates_sales(sales) #adding amount for same dates 
       data = make_chart(output, 'sale_date', 'sale_amt')
@@ -189,8 +193,13 @@ def add_sales():
 
 @app.route("/sales/<id>/delete")
 def del_sales(id):
-    if delete_sale(id):
-      return redirect("/sales") 
+    products = load_inventory()
+    product = request.args.get('product')
+    sale_qty = request.args.get('sale_qty')
+    print(product)
+    new_qty = add_deleted_sale_qty_to_inventory(products, product, sale_qty)
+    if delete_sale(id, product, new_qty):
+      return redirect("/sales")
 
 @app.route("/sales/update", methods=["GET", "POST"])
 def mod_sale():
