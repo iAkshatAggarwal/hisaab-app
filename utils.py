@@ -1,5 +1,6 @@
-import datetime
-# from sklearn.linear_model import LinearRegression
+from datetime import datetime, timedelta
+from sklearn.linear_model import LinearRegression
+import numpy as np
 
 def check_user(users, username, password):
   for user in users:
@@ -134,18 +135,52 @@ def add_deleted_sale_qty_to_inventory(products, product, sale_qty):
         pqty += int(sale_qty)
         break
     return pqty
-    
-          
 
-# def predict_growth():
-#     sales_data = pd.read_sql_table('sale', con=db.engine)
-#     sales_data['month'] = pd.to_datetime(sales_data['date']).dt.to_period('M')
-#     monthly_sales = sales_data.groupby('month')['quantity'].sum().reset_index()
-#     X = pd.to_numeric((monthly_sales['month'] - monthly_sales['month'].min()) / pd.offsets.MonthBegin(1))
-#     X = X.values.reshape(-1, 1)
-#     y = monthly_sales['quantity']
-#     model = LinearRegression()
-#     model.fit(X, y)
-#     next_month = pd.Period(datetime.date.today(), freq='M') + 1
-#     next_month_sales = model.predict([[pd.to_numeric((next_month - monthly_sales['month'].min()) / pd.offsets.MonthBegin(1))]])
-#     return next_month_sales[0]
+# ------------------------------ Revenue Prediction ------------------------------
+
+def predict_sales_revenue(sales_data, interval):
+    # Convert sales_data to a numpy array for easier processing
+    sales_array = np.array([[sale['sale_qty'], sale['sale_price'], sale['sale_amt'], sale['sale_profit']] for sale in sales_data])
+    X = sales_array[:, :2]  # select first two columns as input features
+    y = sales_array[:, 2]
+
+    model = LinearRegression()
+    model.fit(X, y)
+
+    today_date = datetime.now().strftime('%Y-%m-%d')
+    next_week_date = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
+    next_month_date = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+    next_quarter_date = (datetime.now() + timedelta(days=90)).strftime('%Y-%m-%d')
+    next_year_date = (datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d')
+
+    predicted_revenue_today = model.predict([[0, 0.0]])[0]
+    predicted_revenue_next_week = model.predict([[7, 0.0]])[0]
+    predicted_revenue_next_month = model.predict([[30, 0.0]])[0]
+    predicted_revenue_next_quarter = model.predict([[90, 0.0]])[0]
+    predicted_revenue_next_year = model.predict([[365, 0.0]])[0]
+
+    predicted_profit_today = predicted_revenue_today - model.predict([[0, 0.0]])[0]
+    predicted_profit_next_week = predicted_revenue_next_week - model.predict([[7, 0.0]])[0]
+    predicted_profit_next_month = predicted_revenue_next_month - model.predict([[30, 0.0]])[0]
+    predicted_profit_next_quarter = predicted_revenue_next_quarter - model.predict([[90, 0.0]])[0]
+    predicted_profit_next_year = predicted_revenue_next_year - model.predict([[365, 0.0]])[0]
+  
+    p_revenue = 0
+    p_profit = 0
+    if interval == "today":
+        p_revenue = round(predicted_revenue_today,2)
+        p_profit = round(predicted_profit_today,2)
+    elif interval == "thisweek":
+        p_revenue = round(predicted_revenue_next_week,2)
+        p_profit = round(predicted_profit_next_week,2)
+    elif interval == "thismonth":
+        p_revenue = round(predicted_revenue_next_month,2)
+        p_profit = round(predicted_profit_next_month,2)
+    elif interval == "thisquarter":
+        p_revenue = round(predicted_revenue_next_quarter,2)
+        p_profit = round(predicted_profit_next_quarter,2)
+    elif interval == "thisyear":
+        p_revenue = round(predicted_revenue_next_year,2)
+        p_profit = round(predicted_profit_next_year,2)
+      
+    return p_revenue, p_profit
