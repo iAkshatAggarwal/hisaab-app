@@ -99,10 +99,18 @@ def update_product(pname, pcp, psp, pqty):
 #------------------------------- Ledgers -------------------------------
 def add_ledger(wname, credit, debit):
   with engine.connect() as conn:
-    if credit == "":
-      credit = 0
-    elif debit == "":
+    ledgers = load_ledgers()
+    ledger_subset = [ledger for ledger in ledgers if ledger['wname'] == wname]
+    if len(ledger_subset) > 0:
+        latest_ledger = sorted(ledger_subset, key=lambda x: x['ttime'])[-1]
+        credit = latest_ledger['credit']
+        credit -= int(debit)
+    for ledger in ledgers:
+      if ledger['wname'] != wname:
+        credit = 0
+    if debit == "":
       debit = 0
+    
     query = text("INSERT INTO ledger(wname, ttime, credit, debit) VALUES (:wname, :ttime, :credit, :debit)")
     conn.execute(query,
                  {
@@ -121,6 +129,10 @@ def delete_ledger(id):
 
 def update_ledger(wid, wname, ttime, credit, debit):
   with engine.connect() as conn:
+    if credit == "":
+      credit = 0
+    elif debit == "":
+      debit = 0
     query = (text("UPDATE ledger SET wname =:wname, ttime =:ttime, credit =:credit, debit =:debit WHERE wid = :wid"))
     conn.execute(query,
                  {

@@ -1,7 +1,7 @@
 import os
 from datetime import date, timedelta
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales_revenue
+from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales_revenue, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
 from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
@@ -136,9 +136,9 @@ def show_ledgers():
   if session.get('authenticated'):
       ledgers = load_ledgers()
       wholesalers = load_wholesalers()
-      #wslist = [ws['wname'] for ws in wholesalers] #list of wholesalers' name
+      result = get_latest_credits(ledgers)
       #For chart
-      data = make_chart(ledgers, 'wname', 'credit')
+      data = make_chart(result, 'wname', 'credit')
       return render_template('ledger.html',
                              ledgers=ledgers,
                              wholesalers=wholesalers,
@@ -249,6 +249,21 @@ def mod_expense():
                       request.form.get('eprice')):
       return redirect('/expenses')
 
+#------------------------------- Customers -------------------------------
+@app.route('/customers')
+def show_customers():
+  if session.get('authenticated'):
+      sales = load_sales()
+      unpaid_customers = get_unpaid_customers(sales)
+      #For chart
+      output = add_amt_unpaid_customers(unpaid_customers) #adding amount for same dates 
+      data = make_chart(output, 'customer', 'sale_amt')
+      return render_template('customers.html',
+                             unpaid_customers=unpaid_customers,
+                             data=data)
+  else:
+      return redirect(url_for('login'))
+    
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

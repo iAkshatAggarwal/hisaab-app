@@ -136,6 +136,40 @@ def add_deleted_sale_qty_to_inventory(products, product, sale_qty):
         break
     return pqty
 
+def get_unpaid_customers(sales):
+    unpaid_customers = []
+    for sale in sales:
+      if sale['status'] == 'Unpaid':
+        unpaid_customers.append(
+          {
+            'customer': sale['customer'], 
+            'sale_date': sale['sale_date'],
+            'product': sale['product'],
+            'sale_qty': sale['sale_qty'],
+            'sale_amt': sale['sale_amt']
+          }
+        )   
+    return unpaid_customers
+
+def add_amt_unpaid_customers(sales):
+  date_sums = {}
+  for sale in sales: #Sum up the amount for each customer
+    if sale['customer'] in date_sums:
+      date_sums[sale['customer']] += sale['sale_amt']
+    else:
+      date_sums[sale['customer']] = sale['sale_amt']
+    #New list of dictionaries with the summed prices for each date
+  output = [{'customer': customer, 'sale_amt': sale_amt} for customer, sale_amt in date_sums.items()]
+  return output
+
+def get_latest_credits(ledgers):
+    result = {}
+    for ledger in sorted(ledgers, key=lambda x: x['ttime'], reverse=True):
+        wname, credit = ledger['wname'], ledger['credit']
+        if wname not in result:
+            result[wname] = credit
+    return [{'wname': k, 'credit': v} for k, v in result.items()]
+        
 # ------------------------------ Revenue Prediction ------------------------------
 
 def predict_sales_revenue(sales_data, interval):

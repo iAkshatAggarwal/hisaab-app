@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Hisaab: Customers</title>
+    <link rel="shortcut icon" href="/static/growth.svg">
+    {% include 'bootstrap.html' %}
+    <style>
+      .sidebar #customers {
+        color: #2470dc;
+      }
+    </style>
+    
+    <link href="/static/css/dashboard.css" rel="stylesheet">
+  </head>
+  
+  <body>
+    {% include 'dash_nav.html' %} 
+    
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="dashboardSection">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Customers</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="exportButton">Export</button>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar" class="align-text-bottom"></span>
+            This week
+          </button>
+        </div>
+      </div>
+      <!-- Chart -->
+      <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+      <!-- Tables -->
+      <h2>Customers</h2>
+      <!-- Show transactions -->
+      <div class="table-responsive">
+        <table class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th scope="col">Customer Name</th>
+              <th scope="col">Sale Date</th>
+              <th scope="col">Product</th>
+              <th scope="col">Qty</th>
+              <th scope="col">Amount (INR)</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for customer in unpaid_customers %}
+            <tr>
+              <td scope="col">{{customer['customer']}}</td>
+              <td scope="col">{{customer['sale_date']}}</td>
+              <td scope="col">{{customer['product']}}</td>
+              <td scope="col">{{customer['sale_qty']}}</td>
+              <td scope="col">{{customer['sale_amt']}}</td>
+              <td scope="col">Unpaid</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </main>
+      </div>
+    </div>
+    {% include 'script.html' %}
+    {% include 'chart.html' %}
+  </body>
+</html>
