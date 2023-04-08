@@ -106,7 +106,7 @@ def add_ledger(wname, credit, debit):
         credit = latest_ledger['credit']
         credit -= int(debit)
     for ledger in ledgers:
-      if ledger['wname'] != wname:
+      if ledger['wname'] != wname and credit == "":
         credit = 0
     if debit == "":
       debit = 0
