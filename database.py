@@ -154,6 +154,8 @@ def add_sale(pname, qty, price, customer, status):
     cp = get_cp(products, pname)
     new_qty = get_pqty(products, pname) - int(qty) #updated qty of inventory
     profit = amount - (int(qty) * int(cp))
+    if customer == "" and status == "Paid":
+      customer = "CASH"
     query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer, status) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer, :status)")
     conn.execute(query,
                  {

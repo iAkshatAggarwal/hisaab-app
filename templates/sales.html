@@ -44,7 +44,7 @@
 
       <h2>Sales</h2>
       <!-- Add transaction form -->
-      <form class="mb-5 mt-4" action="/add_sale" method="POST">
+      <form class="mb-5 mt-4" id="sale-form" action="/add_sale" method="POST">
         <div class="mx-auto row">
           <div class="col-md-2">
             <select id="option" name="pname" class="form-control">
@@ -56,22 +56,22 @@
             </select>
           </div>
           <div class="col-md-2">
-              <input type="text" class="form-control" name="qty" placeholder="Quantity">
+              <input type="text" class="form-control" name="qty" id="quantity" placeholder="Quantity">
           </div>
           <div class="col-md-2">
-            <input type="text" class="form-control" name="price" placeholder="Price">
+            <input type="text" class="form-control" name="price" id="price" placeholder="Price">
           </div>
           <div class="col-md-2">
-            <input type="text" class="form-control" name="customer" placeholder="Customer Name">
+            <input type="text" class="form-control" name="customer" id="customer" placeholder="Customer Name">
           </div>
           <div class="col-md-1">
-            <select id="option" name="status" class="form-control">
+            <select id="status" name="status" class="form-control">
               <option value="Unpaid">Unpaid</option>
               <option value="Paid">Paid</option>
             </select>
           </div>
           <div class="col-md-3">
-            <button class="btn btn-success" type="submit">Add Sale</button>
+            <button class="btn btn-success" id="add-sale-button" type="submit">Add Sale</button>
           </div>
         </div>
       </form>

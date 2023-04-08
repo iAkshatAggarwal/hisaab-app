@@ -168,18 +168,34 @@ def mod_led():
       return redirect('/ledgers')
 
 #------------------------------- Sales -------------------------------
-@app.route('/sales')
-def show_sales():
+
+@app.route('/sales/<interval>')
+def show_sales(interval = "thisweek"):
   if session.get('authenticated'):
       sales = load_sales()
       products = load_inventory()
-      #interval_sales = extract_interval_sales_data(sales, start_date, end_date)
+      # Assigning time intervals
+      end_date =  date.today()
+      start_date = date.today()
+      if interval == 'thisweek':
+        start_date = end_date - timedelta(days=7)
+      elif interval == 'thismonth':
+        start_date =  end_date.replace(day=1) - timedelta(days=1)
+      elif interval == 'thisquarter':
+        month = end_date.month - 3 if end_date.month > 3 else end_date.month + 9
+        start_date = date(end_date.year, month, 1) - timedelta(days=1)
+      elif interval == 'thisyear':
+        start_date = end_date.replace(year=end_date.year - 1)
+      elif interval == 'alltime':
+        start_date = min(sale['sale_date'] for sale in sales)
+
+      interval_sales = extract_interval_sales_data(sales, start_date, end_date)
       #For chart
-      output = add_dates_sales(sales) #adding amount for same dates 
+      output = add_dates_sales(interval_sales) #adding amount for same dates 
       data = make_chart(output, 'sale_date', 'sale_amt')
       return render_template('sales.html',
                              products = products,
-                             sales=sales,
+                             sales=interval_sales,
                              data=data)
 
   else:
@@ -192,7 +208,7 @@ def add_sales():
                   request.form["price"],
                   request.form["customer"],
                   request.form['status']):
-      return redirect("/sales")
+      return redirect("/sales/thisweek")
 
 @app.route("/sales/<id>/delete")
 def del_sales(id):
@@ -202,7 +218,7 @@ def del_sales(id):
     print(product)
     new_qty = add_deleted_sale_qty_to_inventory(products, product, sale_qty)
     if delete_sale(id, product, new_qty):
-      return redirect("/sales")
+      return redirect("/sales/thisweek")
 
 @app.route("/sales/update", methods=["GET", "POST"])
 def mod_sale():
@@ -215,7 +231,7 @@ def mod_sale():
                 request.form.get('sale_profit'),
                 request.form.get('customer'),
                 request.form.get('status')):
-      return redirect("/sales")
+      return redirect("/sales/thisweek")
 
 #------------------------------- Expenses -------------------------------
 @app.route('/expenses')
