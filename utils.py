@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
@@ -8,6 +8,22 @@ def check_user(users, username, password):
     if user['uname'] == username and user['upass'] == password:
       return True
   return False
+
+def get_interval_dates(interval, sales):
+  end_date =  date.today()
+  start_date = date.today()
+  if interval == 'thisweek':
+    start_date = end_date - timedelta(days=7)
+  elif interval == 'thismonth':
+    start_date =  end_date.replace(day=1) - timedelta(days=1)
+  elif interval == 'thisquarter':
+    month = end_date.month - 3 if end_date.month > 3 else end_date.month + 9
+    start_date = date(end_date.year, month, 1) - timedelta(days=1)
+  elif interval == 'thisyear':
+    start_date = end_date.replace(year=end_date.year - 1)
+  elif interval == 'alltime':
+    start_date = min(sale['sale_date'] for sale in sales)
+  return start_date, end_date
 
 def make_chart(table, x, y):
   labels=[]
@@ -53,6 +69,20 @@ def add_dates_expenses(expenses):
     #New list of dictionaries with the summed prices for each date
   output = [{'date': date, 'eprice': eprice} for date, eprice in date_sums.items()]
   return output
+
+def group_sales_by_month(sales):
+  sales_by_month = {}
+  for sale in sales:
+      date = sale['sale_date']
+      month = date.strftime('%Y-%m')
+      if month in sales_by_month:
+          sales_by_month[month]['price'] += sale['sale_amt']
+      else:
+          sales_by_month[month] = {
+              'month': month,
+              'price': sale['sale_amt']
+          }
+  return list(sales_by_month.values())
 
 def get_cp(products, pname):
     for product in products:

@@ -1,0 +1,80 @@
+<script>
+  feather.replace({ 'aria-hidden': 'true' })
+  // Parse the data embedded in the HTML template
+  var monthly_sales_data = JSON.parse('{{ monthly_sales_data | tojson | safe }}');
+  var daily_sales_data = JSON.parse('{{ daily_sales_data | tojson | safe }}');
+  var daily_expenses_data = JSON.parse('{{ daily_expenses_data | tojson | safe }}');
+  
+  // Create the chart using Chart.js
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var myChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: monthly_sales_data.labels,
+          datasets: [{
+              label: 'Monthly Sales',
+              data: monthly_sales_data.values,
+              backgroundColor: 'rgba(65, 130, 250, 0.2)',
+              borderColor: 'rgba(65, 130, 178, 1)',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+      }
+  });
+  
+  var ctx1 = document.getElementById('myChart1').getContext('2d');
+  var myChart1 = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+          labels: daily_sales_data.labels,
+          datasets: [{
+              label: 'Daily Sales',
+              data: daily_sales_data.values,
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+      }
+  });
+  
+  var ctx2 = document.getElementById('myChart2').getContext('2d');
+  var myChart2 = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+          labels: daily_expenses_data.labels,
+          datasets: [{
+              label: 'Expenses',
+              data: daily_expenses_data.values,
+              backgroundColor: 'rgba(265, 100, 162, 0.2)',
+              borderColor: 'rgba(265, 100, 162, 1)',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }]
+          }
+      }
+  });
+</script>

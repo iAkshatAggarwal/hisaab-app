@@ -1,7 +1,6 @@
 import os
-from datetime import date, timedelta
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales_revenue, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
+from utils import check_user, get_interval_dates, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales_revenue, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
 from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
@@ -44,21 +43,9 @@ def dashboard(interval="today"):
       # user is authenticated, render dashboard page
       sales = load_sales()
       expenses = load_expenses()
-      # Assigning time intervals
-      end_date =  date.today()
-      start_date = date.today()
-      if interval == 'thisweek':
-        start_date = end_date - timedelta(days=7)
-      elif interval == 'thismonth':
-        start_date =  end_date.replace(day=1) - timedelta(days=1)
-      elif interval == 'thisquarter':
-        month = end_date.month - 3 if end_date.month > 3 else end_date.month + 9
-        start_date = date(end_date.year, month, 1) - timedelta(days=1)
-      elif interval == 'thisyear':
-        start_date = end_date.replace(year=end_date.year - 1)
-      elif interval == 'alltime':
-        start_date = min(sale['sale_date'] for sale in sales)
-
+      # Assigning interval dates
+      start_date, end_date = get_interval_dates(interval, sales)
+      #Extract Sales data for given interval
       interval_sales = extract_interval_sales_data(sales, start_date, end_date)
       interval_expenses = extract_interval_expenses_data(expenses, start_date, end_date)
       g_revenue , g_profit = get_cards_revenue(interval_sales)
@@ -70,12 +57,16 @@ def dashboard(interval="today"):
       else:
         ebitda = 0
       p_revenue, p_profit = predict_sales_revenue(sales, interval)
+      #Monthly Sales Chart
+      monthly_sales = group_sales_by_month(sales)
+      monthly_sales_data = make_chart(monthly_sales, 'month', 'price')
       # For Daily Sales Chart
       daily_sales = add_dates_sales(interval_sales) #adding amount for same dates 
       daily_sales_data = make_chart(daily_sales, 'sale_date', 'sale_amt')
       # For Daily Expenses Chart
       daily_expenses = add_dates_expenses(interval_expenses)
       daily_expenses_data = make_chart(daily_expenses, 'date', 'eprice')
+      #Top Products
       top_products_qty, top_products_profit = top_products(sales)
       
       return render_template('dashboard.html',
@@ -87,6 +78,7 @@ def dashboard(interval="today"):
                              ebitda=ebitda,
                              p_revenue=p_revenue,
                              p_profit=p_profit,
+                             monthly_sales_data=monthly_sales_data,
                              daily_sales_data=daily_sales_data,
                              daily_expenses_data=daily_expenses_data,
                              top_products_qty=top_products_qty,
@@ -174,21 +166,9 @@ def show_sales(interval = "thisweek"):
   if session.get('authenticated'):
       sales = load_sales()
       products = load_inventory()
-      # Assigning time intervals
-      end_date =  date.today()
-      start_date = date.today()
-      if interval == 'thisweek':
-        start_date = end_date - timedelta(days=7)
-      elif interval == 'thismonth':
-        start_date =  end_date.replace(day=1) - timedelta(days=1)
-      elif interval == 'thisquarter':
-        month = end_date.month - 3 if end_date.month > 3 else end_date.month + 9
-        start_date = date(end_date.year, month, 1) - timedelta(days=1)
-      elif interval == 'thisyear':
-        start_date = end_date.replace(year=end_date.year - 1)
-      elif interval == 'alltime':
-        start_date = min(sale['sale_date'] for sale in sales)
-
+      # Assigning interval dates
+      start_date, end_date = get_interval_dates(interval, sales)
+      #Extract Sales data for given interval
       interval_sales = extract_interval_sales_data(sales, start_date, end_date)
       #For chart
       output = add_dates_sales(interval_sales) #adding amount for same dates 
