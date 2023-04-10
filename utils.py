@@ -59,6 +59,14 @@ def add_dates_sales(sales):
   output = [{'sale_date': sale_date, 'sale_amt': sale_amt} for sale_date, sale_amt in date_sums.items()]
   return output
 
+def get_cogs(products, sales):
+  cogs = 0
+  for product in products:
+    for sale in sales:
+      if sale["product"] == product['pname']:
+        cogs += sale["sale_qty"] * product["pcp"]
+  return cogs
+
 def add_dates_expenses(expenses):
   date_sums = {}
   for expense in expenses: #Sum up the prices for each date

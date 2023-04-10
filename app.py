@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, get_interval_dates, make_chart, add_dates_sales , get_cards_revenue, get_cards_expenses, add_dates_expenses, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales_revenue, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
+from utils import check_user, get_interval_dates, make_chart, add_dates_sales , get_cogs, get_cards_revenue, get_cards_expenses, add_dates_expenses, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales_revenue, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
 from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
@@ -43,6 +43,7 @@ def dashboard(interval="today"):
       # user is authenticated, render dashboard page
       sales = load_sales()
       expenses = load_expenses()
+      products = load_inventory()
       # Assigning interval dates
       start_date, end_date = get_interval_dates(interval, sales)
       #Extract Sales data for given interval
@@ -50,10 +51,11 @@ def dashboard(interval="today"):
       interval_expenses = extract_interval_expenses_data(expenses, start_date, end_date)
       g_revenue , g_profit = get_cards_revenue(interval_sales)
       g_expenses = get_cards_expenses(interval_expenses)
-      n_revenue = g_revenue - g_expenses
-      n_profit = g_profit - g_expenses
+      n_revenue = g_profit - g_expenses
+      cogs = get_cogs(products, interval_sales)
+      inventory_cost = sum(product['pqty'] * product['pcp'] for product in products)
       if n_revenue != 0:
-        ebitda = "{:.2%}".format((n_profit/n_revenue))
+        ebitda = "{:.2%}".format((n_revenue/g_revenue))
       else:
         ebitda = 0
       p_revenue, p_profit = predict_sales_revenue(sales, interval)
@@ -74,10 +76,11 @@ def dashboard(interval="today"):
                              g_profit=g_profit,
                              g_expenses=g_expenses,
                              n_revenue=n_revenue,
-                             n_profit=n_profit,
+                             cogs=cogs,
                              ebitda=ebitda,
                              p_revenue=p_revenue,
                              p_profit=p_profit,
+                             inventory_cost=inventory_cost,
                              monthly_sales_data=monthly_sales_data,
                              daily_sales_data=daily_sales_data,
                              daily_expenses_data=daily_expenses_data,
