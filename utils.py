@@ -34,7 +34,7 @@ def make_chart(table, x, y):
   data = {'labels':labels, 'values':values}
   return data
 
-def get_cards_revenue(sales):
+def get_grevenue_gmargin(sales):
   gross_revenue = 0
   gross_profit = 0
   for sale in sales:
@@ -42,13 +42,13 @@ def get_cards_revenue(sales):
     gross_profit += sale['sale_profit']
   return gross_revenue, gross_profit   
 
-def get_cards_expenses(expenses):
+def get_gexpenses(expenses):
   gross_expenses = 0
   for expense in expenses:
     gross_expenses += expense['eprice']
   return gross_expenses
 
-def add_dates_sales(sales):
+def add_sales_by_dates(sales):
   date_sums = {}
   for sale in sales: #Sum up the prices for each date
     if sale['sale_date'] in date_sums:
@@ -67,7 +67,7 @@ def get_cogs(products, sales):
         cogs += sale["sale_qty"] * product["pcp"]
   return cogs
 
-def add_dates_expenses(expenses):
+def add_expenses_by_dates(expenses):
   date_sums = {}
   for expense in expenses: #Sum up the prices for each date
     if expense['date'] in date_sums:
@@ -76,6 +76,17 @@ def add_dates_expenses(expenses):
       date_sums[expense['date']] = expense['eprice']
     #New list of dictionaries with the summed prices for each date
   output = [{'date': date, 'eprice': eprice} for date, eprice in date_sums.items()]
+  return output
+
+def add_expenses_by_category(expenses):
+  date_sums = {}
+  for expense in expenses: #Sum up the prices for each category
+    if expense['type'] in date_sums:
+      date_sums[expense['type']] += expense['eprice']
+    else:
+      date_sums[expense['type']] = expense['eprice']
+    #New list of dictionaries with the summed prices for each category
+  output = [{'type': type, 'eprice': eprice} for type, eprice in date_sums.items()]
   return output
 
 def group_sales_by_month(sales):
