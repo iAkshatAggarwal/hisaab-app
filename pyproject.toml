@@ -12,6 +12,7 @@ pandas = "^1.5.3"
 sklearn = "^0.0.post2"
 SQLAlchemy = "^2.0.4"
 scikit-learn = "^1.2.2"
+statsmodels = "^0.13.5"
 
 [tool.poetry.dev-dependencies]
 

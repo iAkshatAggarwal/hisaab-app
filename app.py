@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
 from utils import check_user, get_interval_dates, make_chart, add_sales_by_dates , get_cogs, get_grevenue_gmargin, get_gexpenses, add_expenses_by_dates, add_expenses_by_category, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales_revenue, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
-from database import load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
+from database import add_user, load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -13,19 +13,19 @@ def index():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    if request.method == "GET":
-        return render_template("login.html")
-      
-    elif request.method == "POST": 
+    if request.method == "POST": 
         users = load_users()
-        if check_user(users, 
-                      request.form["username"],
-                      request.form["password"]):
-            session['authenticated'] = True
-            return redirect('/dashboard/today')
-                        
-        else: 
+        user_id, company = check_user(users, 
+                                      request.form["username"], 
+                                      request.form["password"])
+        if user_id is None: 
             return render_template('login.html', login_error = True)
+        else:
+            session['user_id'] = user_id
+            session['company'] = company
+            return redirect('/dashboard/today') 
+    # If request.method = "GET"
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
@@ -33,17 +33,33 @@ def logout():
     session.clear()
     # redirect to login page
     return redirect(url_for('login'))
+
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    if request.method == "POST": 
+        if add_user(request.form["username"], 
+                    request.form["password"],
+                    request.form["company"]):
+            return redirect("/login")
+                       
+    # If request.method = "GET"
+    return render_template('register.html')
           
 #------------------------------- Dashboard -------------------------------
 
 @app.route('/dashboard/<interval>')
 def dashboard(interval="today"):
     # check if user is authenticated
-    if session.get('authenticated'):
+    user_id = session.get('user_id')
+    company = session.get('company')
+    if user_id is None:
+        # user is not authenticated, redirect to login page
+        return redirect(url_for('login'))
+    else:
       # user is authenticated, render dashboard page
-      sales = load_sales()
-      expenses = load_expenses()
-      products = load_inventory()
+      sales = load_sales(user_id)
+      expenses = load_expenses(user_id)
+      products = load_inventory(user_id)
       # Assigning interval dates
       start_date, end_date = get_interval_dates(interval, sales)
       #Extract Sales data for given interval
@@ -81,6 +97,7 @@ def dashboard(interval="today"):
       top_products_qty, top_products_profit = top_products(sales)
       
       return render_template('dashboard.html',
+                             company=company,
                              g_revenue=g_revenue,
                              g_margin=g_margin,
                              g_expenses=g_expenses,
@@ -96,29 +113,32 @@ def dashboard(interval="today"):
                              daily_expenses_data=daily_expenses_data,
                              top_products_qty=top_products_qty,
                              top_products_profit=top_products_profit)
-    else:
-        # user is not authenticated, redirect to login page
-        return redirect(url_for('login'))
 
 #------------------------------- Products -------------------------------
 @app.route('/products')
 def show_products():
-  if session.get('authenticated'):
-      products = load_inventory()
+    user_id = session.get('user_id')
+    company = session.get('company')
+    if user_id is None:
+        # user is not authenticated, redirect to login page
+        return redirect(url_for('login'))
+    else:
+      products = load_inventory(user_id)
       #For chart
       data = make_chart(products, 'pname', 'pqty')
       return render_template('products.html',
+                             company=company,
                              products=products,
                              data=data)
-  else:
-      return redirect(url_for('login'))
 
 @app.route("/add_product", methods=["GET", "POST"])
 def add_prod():
+    user_id = session.get('user_id')
     if add_product(request.form["pname"],
                   request.form["pcp"],
                   request.form["psp"],
-                  request.form["pqty"]):
+                  request.form["pqty"],
+                  user_id):
       return redirect("/products")
 
 @app.route("/products/<pid>/delete")
@@ -138,24 +158,30 @@ def mod_prod():
 
 @app.route('/ledgers')
 def show_ledgers():
-  if session.get('authenticated'):
-      ledgers = load_ledgers()
-      wholesalers = load_wholesalers()
+    user_id = session.get('user_id')
+    company = session.get('company')
+    if user_id is None:
+        # user is not authenticated, redirect to login page
+        return redirect(url_for('login'))
+    else:
+      ledgers = load_ledgers(user_id)
+      wholesalers = load_wholesalers(user_id)
       result = get_latest_credits(ledgers)
       #For chart
       data = make_chart(result, 'wname', 'credit')
       return render_template('ledger.html',
+                             company=company,
                              ledgers=ledgers,
                              wholesalers=wholesalers,
                              data=data)
-  else:
-      return redirect(url_for('login'))
 
 @app.route("/add_ledger", methods=["GET", "POST"])
 def add_led():
+    user_id = session.get('user_id')
     if add_ledger(request.form["wname"],
                   request.form["credit"],
-                  request.form["debit"]):
+                  request.form["debit"],
+                  user_id):
       return redirect("/ledgers")
 
 @app.route("/ledgers/<wid>/delete")
@@ -176,9 +202,14 @@ def mod_led():
 
 @app.route('/sales/<interval>')
 def show_sales(interval = "thisweek"):
-  if session.get('authenticated'):
-      sales = load_sales()
-      products = load_inventory()
+    user_id = session.get('user_id')
+    company = session.get('company')
+    if user_id is None:
+        # user is not authenticated, redirect to login page
+        return redirect(url_for('login'))
+    else:
+      sales = load_sales(user_id)
+      products = load_inventory(user_id)
       # Assigning interval dates
       start_date, end_date = get_interval_dates(interval, sales)
       #Extract Sales data for given interval
@@ -187,25 +218,26 @@ def show_sales(interval = "thisweek"):
       output = add_sales_by_dates(interval_sales) #adding amount for same dates 
       data = make_chart(output, 'sale_date', 'sale_amt')
       return render_template('sales.html',
+                             company=company,
                              products = products,
                              sales=interval_sales,
                              data=data)
 
-  else:
-      return redirect(url_for('login'))
-
 @app.route("/add_sale", methods=["GET", "POST"])
 def add_sales():
+    user_id = session.get('user_id')
     if add_sale(request.form["pname"],
                   request.form["qty"],
                   request.form["price"],
                   request.form["customer"],
-                  request.form['status']):
+                  request.form['status'],
+                  user_id):
       return redirect("/sales/thisweek")
 
 @app.route("/sales/<id>/delete")
 def del_sales(id):
-    products = load_inventory()
+    user_id = session.get('user_id')
+    products = load_inventory(user_id)
     product = request.args.get('product')
     sale_qty = request.args.get('sale_qty')
     print(product)
@@ -215,6 +247,7 @@ def del_sales(id):
 
 @app.route("/sales/update", methods=["GET", "POST"])
 def mod_sale():
+    user_id = session.get('user_id')
     if update_sale(request.form.get('id'),
                 request.form.get('sale_date'),
                 request.form.get('product'),
@@ -223,26 +256,33 @@ def mod_sale():
                 request.form.get('sale_amt'),
                 request.form.get('sale_profit'),
                 request.form.get('customer'),
-                request.form.get('status')):
+                request.form.get('status'),
+                user_id):
       return redirect("/sales/thisweek")
 
 #------------------------------- Expenses -------------------------------
 @app.route('/expenses')
 def show_expenses():
-  if session.get('authenticated'):
-      expenses = load_expenses()
+    user_id = session.get('user_id')
+    company = session.get('company')
+    if user_id is None:
+        # user is not authenticated, redirect to login page
+        return redirect(url_for('login'))
+    else:
+      expenses = load_expenses(user_id)
       output = add_expenses_by_dates(expenses)
       data = make_chart(output, 'date', 'eprice')
       return render_template('expenses.html',
+                              company=company,
                               expenses=expenses,
                               data=data)
-  else:
-      return redirect(url_for('login'))
 
 @app.route("/add_expense", methods=["GET", "POST"])
 def add_ex():
+    user_id = session.get('user_id')
     if add_expense(request.form["type"],
-                  request.form["eprice"]):
+                  request.form["eprice"],
+                  user_id):
       return redirect("/expenses")
 
 @app.route("/expenses/<id>/delete")
@@ -261,18 +301,22 @@ def mod_expense():
 #------------------------------- Customers -------------------------------
 @app.route('/customers')
 def show_customers():
-  if session.get('authenticated'):
-      sales = load_sales()
+    user_id = session.get('user_id')
+    company = session.get('company')
+    if user_id is None:
+        # user is not authenticated, redirect to login page
+        return redirect(url_for('login'))
+    else:
+      sales = load_sales(user_id)
       unpaid_customers = get_unpaid_customers(sales)
       #For chart
       output = add_amt_unpaid_customers(unpaid_customers) #adding amount for same dates 
       data = make_chart(output, 'customer', 'sale_amt')
       return render_template('customers.html',
+                             company=company,
                              unpaid_customers=unpaid_customers,
                              data=data)
-  else:
-      return redirect(url_for('login'))
-    
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

@@ -11,6 +11,19 @@ engine = create_engine(conn_string, connect_args = {
   }
 })
 
+def add_user(uname, upass, company):
+  with engine.connect() as conn:
+    query = text("INSERT INTO users(uname, upass, company) VALUES (:uname, :upass, :company)")
+    conn.execute(query,
+                 {
+                  'uname': uname, 
+                  'upass': upass, 
+                  'company': company,
+                  'onboarded': datetime.datetime.now()
+                 }
+    )
+    return True
+
 def load_users():
   with engine.connect() as conn:
     result = conn.execute(text("SELECT * from users"))
@@ -20,60 +33,66 @@ def load_users():
         users.append(row_dict)
     return users
     
-def load_inventory():
+def load_inventory(uid):
   with engine.connect() as conn:
-    result = conn.execute(text("SELECT * from product"))
+    query = text("SELECT * from product WHERE uid = :uid")
+    result = conn.execute(query, {'uid': uid})
     products = []
     for row in result.fetchall():
         row_dict = dict(zip(result.keys(), row))
         products.append(row_dict)
     return products
 
-def load_sales():
+def load_sales(uid):
   with engine.connect() as conn:
-    response = conn.execute(text("SELECT * from sales"))
+    query = text("SELECT * from sales WHERE uid = :uid")
+    result = conn.execute(query, {'uid': uid})
     sales = []
-    for row in response.fetchall():
-        row_dic = dict(zip(response.keys(), row))
+    for row in result.fetchall():
+        row_dic = dict(zip(result.keys(), row))
         sales.append(row_dic)
     return sales
 
-def load_wholesalers():
+def load_wholesalers(uid):
   with engine.connect() as conn:
-    response = conn.execute(text("SELECT * from wholesalers"))
+    query = text("SELECT * from wholesalers WHERE uid = :uid")
+    result = conn.execute(query, {'uid': uid})
     wholesalers = []
-    for row in response.fetchall():
-        row_dic = dict(zip(response.keys(), row))
+    for row in result.fetchall():
+        row_dic = dict(zip(result.keys(), row))
         wholesalers.append(row_dic)
     return wholesalers
 
-def load_ledgers():
+def load_ledgers(uid):
   with engine.connect() as conn:
-    response = conn.execute(text("SELECT * from ledger"))
+    query = text("SELECT * from ledger WHERE uid = :uid")
+    result = conn.execute(query, {'uid': uid})
     ledgers = []
-    for row in response.fetchall():
-        row_dic = dict(zip(response.keys(), row))
+    for row in result.fetchall():
+        row_dic = dict(zip(result.keys(), row))
         ledgers.append(row_dic)
     return ledgers
 
-def load_expenses():
+def load_expenses(uid):
   with engine.connect() as conn:
-    response = conn.execute(text("SELECT * from expenses"))
+    query = text("SELECT * from expenses WHERE uid = :uid")
+    result = conn.execute(query, {'uid': uid})
     expenses = []
-    for row in response.fetchall():
-        row_dic = dict(zip(response.keys(), row))
+    for row in result.fetchall():
+        row_dic = dict(zip(result.keys(), row))
         expenses.append(row_dic)
     return expenses
 
 #------------------------------- Products -------------------------------
-def add_product(pname, pcp, psp, pqty):
+def add_product(pname, pcp, psp, pqty, uid):
   with engine.connect() as conn:
-    query = text("INSERT INTO product(pname, pcp, psp, pqty) VALUES (:pname, :pcp, :psp, :pqty)")
+    query = text("INSERT INTO product(pname, pcp, psp, pqty, uid) VALUES (:pname, :pcp, :psp, :pqty, :uid)")
     conn.execute(query,
                  {'pname': pname,
                   'pcp': pcp,
                   'psp': psp,
-                  'pqty': pqty
+                  'pqty': pqty,
+                  'uid': uid
                  }
     )
     return True
@@ -97,9 +116,9 @@ def update_product(pname, pcp, psp, pqty):
     return True
 
 #------------------------------- Ledgers -------------------------------
-def add_ledger(wname, credit, debit):
+def add_ledger(wname, credit, debit, uid):
   with engine.connect() as conn:
-    ledgers = load_ledgers()
+    ledgers = load_ledgers(uid)
     ledger_subset = [ledger for ledger in ledgers if ledger['wname'] == wname]
     if len(ledger_subset) > 0:
         latest_ledger = sorted(ledger_subset, key=lambda x: x['ttime'])[-1]
@@ -111,13 +130,14 @@ def add_ledger(wname, credit, debit):
     if debit == "":
       debit = 0
     
-    query = text("INSERT INTO ledger(wname, ttime, credit, debit) VALUES (:wname, :ttime, :credit, :debit)")
+    query = text("INSERT INTO ledger(wname, ttime, credit, debit, uid) VALUES (:wname, :ttime, :credit, :debit, :uid)")
     conn.execute(query,
                  {
                   'wname': wname, 
                   'ttime': datetime.datetime.now(), 
                   'credit': credit, 
-                  'debit': debit
+                  'debit': debit,
+                  'uid': uid
                  }
     )
     return True
@@ -146,17 +166,17 @@ def update_ledger(wid, wname, ttime, credit, debit):
     return True
     
 #------------------------------- Sales -------------------------------
-def add_sale(pname, qty, price, customer, status):
+def add_sale(pname, qty, price, customer, status, uid):
   with engine.connect() as conn:
     #to get cp
-    products = load_inventory()
+    products = load_inventory(uid)
     amount = int(qty) * int(price)
     cp = get_cp(products, pname)
     new_qty = get_pqty(products, pname) - int(qty) #updated qty of inventory
     profit = amount - (int(qty) * int(cp))
     if customer == "" and status == "Paid":
       customer = "CASH"
-    query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer, status) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer, :status)")
+    query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer, status, uid) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer, :status, :uid)")
     conn.execute(query,
                  {
                   'product': pname, 
@@ -166,7 +186,8 @@ def add_sale(pname, qty, price, customer, status):
                   'sale_amt': amount,
                   'sale_profit': profit,
                   'customer': customer,
-                  'status': status
+                  'status': status,
+                  'uid': uid
                  }
     )
     query2 = text("UPDATE product SET pqty = :pqty  WHERE pname = :pname")
@@ -187,21 +208,22 @@ def delete_sale(id, pname, pqty):
     return True
 
 def update_sale(id, sale_date, product, sale_qty, 
-                sale_price, sale_amt, sale_profit, customer, status):
+                sale_price, sale_amt, sale_profit, customer, status, uid):
   with engine.connect() as conn:
-    sales = load_sales()
-    products = load_inventory()
+    sales = load_sales(uid)
+    products = load_inventory(uid)
     sale_amt, sale_profit, pname, pqty = calc_updated_sales(id, sales, sale_price, sale_amt, sale_profit, products, product, sale_qty)
     # To update qty in inventory or product table
-    query1 = text("UPDATE product SET pqty = :pqty  WHERE pname = :pname")
+    query1 = text("UPDATE product SET pqty = :pqty  WHERE pname=:pname AND uid=:uid")
     conn.execute(query1,
                   {
                     'pqty': pqty,
-                    'pname': pname
+                    'pname': pname,
+                    'uid':uid
                   }
     )
     # Updating Sales 
-    query2 = (text("UPDATE sales SET id = :id, sale_date = :sale_date, product = :product, sale_qty = :sale_qty, sale_price = :sale_price, sale_amt = :sale_amt, sale_profit = :sale_profit, customer =:customer, status = :status WHERE id = :id"))
+    query2 = (text("UPDATE sales SET id = :id, sale_date = :sale_date, product = :product, sale_qty = :sale_qty, sale_price = :sale_price, sale_amt = :sale_amt, sale_profit = :sale_profit, customer =:customer, status = :status WHERE id = :id AND uid = :uid"))
     conn.execute(query2,
                  {
                   'id': id,
@@ -212,16 +234,17 @@ def update_sale(id, sale_date, product, sale_qty,
                   'sale_amt': sale_amt,
                   'sale_profit': sale_profit,
                   'customer': customer,
-                  'status': status
+                  'status': status,
+                  'uid': uid
                  }
     )
     return True
 
 #------------------------------- Expenses -------------------------------
 
-def add_expense(type, eprice):
+def add_expense(type, eprice, uid):
   with engine.connect() as conn:
-    query = text("INSERT INTO expenses(type, eprice, date) VALUES (:type, :eprice, :date)")
+    query = text("INSERT INTO expenses(type, eprice, date, uid) VALUES (:type, :eprice, :date, :uid)")
     conn.execute(query,
                  {
                   'type': type, 

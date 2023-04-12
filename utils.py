@@ -1,13 +1,13 @@
-from datetime import date, datetime, timedelta
-from sklearn.linear_model import LinearRegression
-import numpy as np
+from datetime import date, timedelta
+from statsmodels.tsa.arima.model import ARIMA
+import pandas as pd
 
 def check_user(users, username, password):
   for user in users:
     # users is a list of dictionary
     if user['uname'] == username and user['upass'] == password:
-      return True
-  return False
+      return user['uid'], user['company']
+  return None
 
 def get_interval_dates(interval, sales):
   end_date =  date.today()
@@ -222,48 +222,46 @@ def get_latest_credits(ledgers):
 # ------------------------------ Revenue Prediction ------------------------------
 
 def predict_sales_revenue(sales_data, interval):
-    # Convert sales_data to a numpy array for easier processing
-    sales_array = np.array([[sale['sale_qty'], sale['sale_price'], sale['sale_amt'], sale['sale_profit']] for sale in sales_data])
-    X = sales_array[:, :2]  # select first two columns as input features
-    y = sales_array[:, 2]
-
-    model = LinearRegression()
-    model.fit(X, y)
-
-    today_date = datetime.now().strftime('%Y-%m-%d')
-    next_week_date = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
-    next_month_date = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
-    next_quarter_date = (datetime.now() + timedelta(days=90)).strftime('%Y-%m-%d')
-    next_year_date = (datetime.now() + timedelta(days=365)).strftime('%Y-%m-%d')
-
-    predicted_revenue_today = model.predict([[0, 0.0]])[0]
-    predicted_revenue_next_week = model.predict([[7, 0.0]])[0]
-    predicted_revenue_next_month = model.predict([[30, 0.0]])[0]
-    predicted_revenue_next_quarter = model.predict([[90, 0.0]])[0]
-    predicted_revenue_next_year = model.predict([[365, 0.0]])[0]
-
-    predicted_profit_today = predicted_revenue_today - model.predict([[0, 0.0]])[0]
-    predicted_profit_next_week = predicted_revenue_next_week - model.predict([[7, 0.0]])[0]
-    predicted_profit_next_month = predicted_revenue_next_month - model.predict([[30, 0.0]])[0]
-    predicted_profit_next_quarter = predicted_revenue_next_quarter - model.predict([[90, 0.0]])[0]
-    predicted_profit_next_year = predicted_revenue_next_year - model.predict([[365, 0.0]])[0]
+    if len(sales_data) == 0:
+      return 0, 0
+    daily_sales_data = add_sales_by_dates(sales_data)
   
-    p_revenue = 0
-    p_profit = 0
+    # Convert list of dictionaries to DataFrame
+    df = pd.DataFrame(daily_sales_data)
+    
+    # Convert date string to datetime object and set as index
+    df['sale_date'] = pd.to_datetime(df['sale_date'])
+    df.set_index('sale_date', inplace=True)
+
+    # Train ARIMA model
+    model = ARIMA(df['sale_amt'], order=(2,1,1))  # ARIMA(2,1,1) model
+    model_fit = model.fit()
+    
+    # Make predictions
+    try:
+        today_revenue = model_fit.forecast()[0][-1]
+    except IndexError:
+        today_revenue = 0
+    # today_revenue = model_fit.forecast()[0][-1]  # Today's revenue
+    one_week_revenue = model_fit.forecast(steps=7)[-1]  # Revenue in 1 week
+    end_of_month_revenue = model_fit.forecast(steps=30)[-1]  # Revenue at end of month
+    end_of_quarter_revenue = model_fit.forecast(steps=90)[-1]  # Revenue at end of quarter
+    end_of_year_revenue = model_fit.forecast(steps=365)[-1]  # Revenue at end of year
+  
     if interval == "today":
-        p_revenue = round(predicted_revenue_today,2)
-        p_profit = round(predicted_profit_today,2)
+        p_revenue = round(today_revenue,2)
+        p_profit = 0
     elif interval == "thisweek":
-        p_revenue = round(predicted_revenue_next_week,2)
-        p_profit = round(predicted_profit_next_week,2)
+        p_revenue = round(one_week_revenue,2)
+        p_profit = 0
     elif interval == "thismonth":
-        p_revenue = round(predicted_revenue_next_month,2)
-        p_profit = round(predicted_profit_next_month,2)
+        p_revenue = round(end_of_month_revenue,2)
+        p_profit = 0
     elif interval == "thisquarter":
-        p_revenue = round(predicted_revenue_next_quarter,2)
-        p_profit = round(predicted_profit_next_quarter,2)
+        p_revenue = round(end_of_quarter_revenue,2)
+        p_profit = 0
     elif interval == "thisyear":
-        p_revenue = round(predicted_revenue_next_year,2)
-        p_profit = round(predicted_profit_next_year,2)
+        p_revenue = round(end_of_year_revenue,2)
+        p_profit = 0
       
     return p_revenue, p_profit
