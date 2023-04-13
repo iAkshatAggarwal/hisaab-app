@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from statsmodels.tsa.arima.model import ARIMA
+from sklearn.linear_model import LinearRegression
 import pandas as pd
 
 def check_user(users, username, password):
@@ -24,6 +24,23 @@ def get_interval_dates(interval, sales):
   elif interval == 'alltime':
     start_date = min(sale['sale_date'] for sale in sales)
   return start_date, end_date
+
+def get_future_date(interval):
+    end_date = date.today()
+    if interval == 'thisweek':
+        start_date = end_date + timedelta(days=1)
+        end_date = end_date + timedelta(days=7)
+    elif interval == 'thismonth':
+        start_date = end_date.replace(day=1) + timedelta(days=1)
+        end_date = end_date.replace(day=28) + timedelta(days=4)
+    elif interval == 'thisquarter':
+        month = end_date.month + 3 if end_date.month <= 9 else end_date.month - 9
+        start_date = date(end_date.year, month, 1) + timedelta(days=1)
+        end_date = start_date + timedelta(days=89)
+    elif interval == 'thisyear':
+        start_date = end_date.replace(month=1, day=1) + timedelta(days=1)
+        end_date = end_date.replace(month=12, day=31)
+    return end_date
 
 def make_chart(table, x, y):
   labels=[]
@@ -221,47 +238,62 @@ def get_latest_credits(ledgers):
         
 # ------------------------------ Revenue Prediction ------------------------------
 
-def predict_sales_revenue(sales_data, interval):
-    if len(sales_data) == 0:
-      return 0, 0
-    daily_sales_data = add_sales_by_dates(sales_data)
-  
-    # Convert list of dictionaries to DataFrame
-    df = pd.DataFrame(daily_sales_data)
-    
-    # Convert date string to datetime object and set as index
-    df['sale_date'] = pd.to_datetime(df['sale_date'])
-    df.set_index('sale_date', inplace=True)
+def predict_sales(previous_sales_data, interval):
+    # Convert the previous sales data to a Pandas dataframe
+    sales_df = pd.DataFrame(previous_sales_data)
+    predict_date = get_future_date(interval)
 
-    # Train ARIMA model
-    model = ARIMA(df['sale_amt'], order=(2,1,1))  # ARIMA(2,1,1) model
-    model_fit = model.fit()
-    
-    # Make predictions
-    try:
-        today_revenue = model_fit.forecast()[0][-1]
-    except IndexError:
-        today_revenue = 0
-    # today_revenue = model_fit.forecast()[0][-1]  # Today's revenue
-    one_week_revenue = model_fit.forecast(steps=7)[-1]  # Revenue in 1 week
-    end_of_month_revenue = model_fit.forecast(steps=30)[-1]  # Revenue at end of month
-    end_of_quarter_revenue = model_fit.forecast(steps=90)[-1]  # Revenue at end of quarter
-    end_of_year_revenue = model_fit.forecast(steps=365)[-1]  # Revenue at end of year
+    # Convert the sale_date column to datetime object
+    sales_df['sale_date'] = pd.to_datetime(sales_df['sale_date'])
+
+    # Group the sales data by date and calculate the total sale amount for each day
+    sale_amt_df = sales_df.groupby('sale_date')['sale_amt'].sum().reset_index()
+
+    # Split the date into year, month and day for easier analysis
+    sale_amt_df['year'] = sale_amt_df['sale_date'].dt.year
+    sale_amt_df['month'] = sale_amt_df['sale_date'].dt.month
+    sale_amt_df['day'] = sale_amt_df['sale_date'].dt.day
+
+    # Create a linear regression model to predict future sales
+    X = sale_amt_df[['year', 'month', 'day']]
+    y = sale_amt_df['sale_amt']
+    model = LinearRegression()
+    model.fit(X, y)
+
+    # Create a dataframe with dates up to the predict_date
+    date_range = pd.date_range(start=sale_amt_df['sale_date'].min(), end=predict_date, freq='D')
+    future_sales_df = pd.DataFrame({'sale_date': date_range})
+    future_sales_df['year'] = future_sales_df['sale_date'].dt.year
+    future_sales_df['month'] = future_sales_df['sale_date'].dt.month
+    future_sales_df['day'] = future_sales_df['sale_date'].dt.day
+
+    # Predict sales for each date up to the predict_date
+    future_sales_df['predicted_sales'] = model.predict(future_sales_df[['year', 'month', 'day']])
+
+    # Calculate the predicted revenue and profit for each date up to the predict_date
+    avg_profit_margin = sales_df['sale_profit'].mean() / sales_df['sale_amt'].mean()
+    future_sales_df['predicted_revenue'] = future_sales_df['predicted_sales'].cumsum()
+    future_sales_df['predicted_profit'] = future_sales_df['predicted_revenue'] * avg_profit_margin
+
+    # Calculate the total predicted revenue and profit up to the predict_date
+    predict_date = pd.to_datetime(predict_date) # Convert predict_date to a Pandas datetime object
+    filtered_sales_df = future_sales_df[future_sales_df['sale_date'] <= predict_date]
+    total_predicted_revenue = round(filtered_sales_df.iloc[-1]['predicted_revenue'],2)
+    total_predicted_profit = round(filtered_sales_df.iloc[-1]['predicted_profit'],2)
+
+    # Calculate the stock maintenance for each product based on the predicted sales
+    products = sales_df['product'].unique()
+    stock_maintenance = {}
+    for product in products:
+        product_sales = sales_df[sales_df['product'] == product]
+        avg_sale_qty = product_sales['sale_qty'].mean()
+        avg_sale_profit = product_sales['sale_profit'].mean()
+        avg_sale_amt = product_sales['sale_amt'].mean()
+        predicted_sale_qty = filtered_sales_df['predicted_sales'].mean() / avg_sale_amt * avg_sale_qty
+        predicted_sale_profit = predicted_sale_qty * avg_sale_profit
+        stock_maintenance[product] = {
+            'predicted_sale_qty': predicted_sale_qty,
+            'predicted_sale_profit': predicted_sale_profit
+        }
   
-    if interval == "today":
-        p_revenue = round(today_revenue,2)
-        p_profit = 0
-    elif interval == "thisweek":
-        p_revenue = round(one_week_revenue,2)
-        p_profit = 0
-    elif interval == "thismonth":
-        p_revenue = round(end_of_month_revenue,2)
-        p_profit = 0
-    elif interval == "thisquarter":
-        p_revenue = round(end_of_quarter_revenue,2)
-        p_profit = 0
-    elif interval == "thisyear":
-        p_revenue = round(end_of_year_revenue,2)
-        p_profit = 0
-      
-    return p_revenue, p_profit
+    return total_predicted_revenue, total_predicted_profit

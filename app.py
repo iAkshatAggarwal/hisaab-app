@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, get_interval_dates, make_chart, add_sales_by_dates , get_cogs, get_grevenue_gmargin, get_gexpenses, add_expenses_by_dates, add_expenses_by_category, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales_revenue, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
+from utils import check_user, get_interval_dates, make_chart, add_sales_by_dates , get_cogs, get_grevenue_gmargin, get_gexpenses, add_expenses_by_dates, add_expenses_by_category, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
 from database import add_user, load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
@@ -67,6 +67,10 @@ def dashboard(interval="today"):
       interval_expenses = extract_interval_expenses_data(expenses, start_date, end_date)
       #Gross Revenue and Gross Margin
       g_revenue , g_margin = get_grevenue_gmargin(interval_sales)
+      if g_revenue != 0:
+        perc_gmargin = "{:.2%}".format((g_margin/g_revenue))
+      else:
+        perc_gmargin = "{:.2%}".format(0)
       g_expenses = get_gexpenses(interval_expenses)
       #Net Revenue
       n_revenue = g_margin - g_expenses
@@ -80,7 +84,7 @@ def dashboard(interval="today"):
       else:
         ebitda = 0
       #Revenue Projection and Profit Projection
-      p_revenue, p_profit = predict_sales_revenue(sales, interval)
+      p_revenue, p_profit = predict_sales(sales, interval)
       #Monthly Sales Chart
       monthly_sales = group_sales_by_month(sales)
       monthly_sales_data = make_chart(monthly_sales, 'month', 'price')
@@ -100,6 +104,7 @@ def dashboard(interval="today"):
                              company=company,
                              g_revenue=g_revenue,
                              g_margin=g_margin,
+                             perc_gmargin=perc_gmargin,
                              g_expenses=g_expenses,
                              n_revenue=n_revenue,
                              cogs=cogs,
