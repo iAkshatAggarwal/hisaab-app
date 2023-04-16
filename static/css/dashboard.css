@@ -11,6 +11,11 @@ body {
  * Sidebar
  */
 
+#dashboardSection{
+  background-color: #f3f5fa
+}
+
+}
 .sidebar {
   position: fixed;
   top: 0;

@@ -10,14 +10,14 @@
   // Monthly Sales Chart
   var ctx = document.getElementById('myChart').getContext('2d'); 
   var myChart = new Chart(ctx, {
-      type: 'bar',
+      type: 'line',
       data: {
           labels: monthly_sales_data.labels,
           datasets: [{
               label: 'Monthly Sales',
               data: monthly_sales_data.values,
-              backgroundColor: 'rgba(65, 130, 250, 0.2)',
-              borderColor: 'rgba(65, 130, 178, 1)',
+              backgroundColor: 'rgba(0, 128, 0, 1)',
+              borderColor: 'rgba(0, 128, 0, 0.5)',
               borderWidth: 1
           }]
       },
@@ -41,8 +41,8 @@
           datasets: [{
               label: 'Daily Sales',
               data: daily_sales_data.values,
-              backgroundColor: 'rgba(54, 162, 235, 0.2)',
-              borderColor: 'rgba(54, 162, 235, 1)',
+              backgroundColor: 'rgba(20, 70, 200, 1)',
+              borderColor: 'rgba(20, 70, 200, 0.5)',
               borderWidth: 1
           }]
       },
