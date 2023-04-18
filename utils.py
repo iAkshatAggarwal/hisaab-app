@@ -2,12 +2,18 @@ from datetime import date, timedelta
 from sklearn.linear_model import LinearRegression
 import pandas as pd
 
-def check_user(users, username, password):
+def authenticate_user(users, username, password):
   for user in users:
     # users is a list of dictionary
     if user['uname'] == username and user['upass'] == password:
       return user['uid'], user['company']
-  return None
+  return None, None
+
+def check_existing_user(users, username, company):
+  for user in users:
+    if user['uname'] == username or user['company'] == company:
+      return False
+  return True
 
 def get_interval_dates(interval, sales):
   end_date =  date.today()

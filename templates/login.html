@@ -35,7 +35,6 @@
       {% if login_error %}
         <script>
           $(document).ready(function(){
-            console.log("jQuery function executed.");
             alert("Incorrect password. Please try again.");
           });
         </script>
@@ -58,11 +57,10 @@
         </div>
         <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
         <div class="mt-3">
-          <a href="/register">Create Account</a>
+          <p>Don't have an account? <a class="mx-auto" href="/register">Sign up</a></p>
         </div>
         <p class="mt-5 mb-3 text-muted">&copy;2023 Hisaab, Inc</p>
       </form>
     </main>
-
   </body>
 </html>

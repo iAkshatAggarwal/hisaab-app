@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import check_user, get_interval_dates, make_chart, add_sales_by_dates , get_cogs, get_grevenue_gmargin, get_gexpenses, add_expenses_by_dates, add_expenses_by_category, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
+from utils import authenticate_user, check_existing_user, get_interval_dates, make_chart, add_sales_by_dates , get_cogs, get_grevenue_gmargin, get_gexpenses, add_expenses_by_dates, add_expenses_by_category, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
 from database import add_user, load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
@@ -15,7 +15,7 @@ def index():
 def login():
     if request.method == "POST": 
         users = load_users()
-        user_id, company = check_user(users, 
+        user_id, company = authenticate_user(users, 
                                       request.form["username"], 
                                       request.form["password"])
         if user_id is None: 
@@ -23,7 +23,7 @@ def login():
         else:
             session['user_id'] = user_id
             session['company'] = company
-            return redirect('/dashboard/today') 
+            return redirect('/dashboard/thismonth') 
     # If request.method = "GET"
     return render_template('login.html')
 
@@ -37,13 +37,22 @@ def logout():
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST": 
+      users = load_users()
+      if check_existing_user(users, request.form["username"], request.form["company"]):
         if add_user(request.form["username"], 
                     request.form["password"],
                     request.form["company"]):
             return redirect("/login")
+
+      else:
+        redirect(url_for('register'))
                        
     # If request.method = "GET"
     return render_template('register.html')
+
+@app.route('/plans')
+def plans():
+    return render_template("subscription.html")
           
 #------------------------------- Dashboard -------------------------------
 
