@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
 from utils import authenticate_user, check_existing_user, get_interval_dates, make_chart, add_sales_by_dates , get_cogs, get_grevenue_gmargin, get_gexpenses, add_expenses_by_dates, add_expenses_by_category, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
-from database import add_user, load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
+from database import add_user, load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_wholesaler, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -188,6 +188,15 @@ def show_ledgers():
                              ledgers=ledgers,
                              wholesalers=wholesalers,
                              data=data)
+
+@app.route("/add_wholesaler", methods=["GET", "POST"])
+def add_wsaler():
+    user_id = session.get('user_id')
+    if add_wholesaler(request.form["wname"],
+                  request.form["wcontact"],
+                  request.form["waddress"],
+                  user_id):
+      return redirect("/ledgers")
 
 @app.route("/add_ledger", methods=["GET", "POST"])
 def add_led():

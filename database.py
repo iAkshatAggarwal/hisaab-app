@@ -116,6 +116,19 @@ def update_product(pname, pcp, psp, pqty):
     return True
 
 #------------------------------- Ledgers -------------------------------
+def add_wholesaler(wname, wcontact, waddress, uid):
+  with engine.connect() as conn:
+    query = text("INSERT INTO wholesalers(wname, wcontact, waddress, onboarded, uid) VALUES (:wname, :wcontact, :waddress, :onboarded, :uid)")
+    conn.execute(query,
+                 {'wname': wname,
+                  'wcontact': wcontact,
+                  'waddress': waddress,
+                  'onboarded': datetime.datetime.now(),
+                  'uid': uid
+                 }
+    )
+    return True
+
 def add_ledger(wname, credit, debit, uid):
   with engine.connect() as conn:
     ledgers = load_ledgers(uid)
@@ -249,7 +262,8 @@ def add_expense(type, eprice, uid):
                  {
                   'type': type, 
                   'eprice': eprice, 
-                  'date': datetime.datetime.now()
+                  'date': datetime.datetime.now(),
+                  'uid': uid
                  }
     )
     return True

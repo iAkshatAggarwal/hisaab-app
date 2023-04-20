@@ -34,6 +34,23 @@
           <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
         </div>
       </div>
+      <!-- Add Wholesalers form -->
+      <form class="mb-5 mt-4" action="/add_wholesaler" method="POST">
+        <div class="mx-auto row">
+          <div class="col-md-2">
+            <input type="text" class="form-control" name="wname" placeholder="Wholesaler name">
+          </div>
+          <div class="col-md-2">
+              <input type="text" class="form-control" name="wcontact" placeholder="Contact">
+          </div>
+          <div class="col-md-2">
+            <input type="text" class="form-control" name="waddress" placeholder="Address">
+           </div>
+          <div class="col-md-3">
+            <button class="btn btn-success" type="submit">Add Wholesaler</button>
+          </div>
+        </div>
+      </form>
       <!-- Tables -->
       <h2>Ledger</h2>
       <!-- Add transaction form -->
