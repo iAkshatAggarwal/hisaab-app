@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 from sklearn.linear_model import LinearRegression
 import pandas as pd
 
@@ -15,7 +15,7 @@ def check_existing_user(users, username, company):
       return False
   return True
 
-def get_interval_dates(interval, sales):
+def get_interval_dates(interval, datas):
   end_date =  date.today()
   start_date = date.today()
   if interval == 'thisweek':
@@ -28,9 +28,20 @@ def get_interval_dates(interval, sales):
   elif interval == 'thisyear':
     start_date = end_date.replace(year=end_date.year - 1)
   elif interval == 'alltime':
-    start_date = min(sale['sale_date'] for sale in sales)
+    start_date = min(data['date'] for data in datas)
   return start_date, end_date
 
+def extract_interval_data(data_list, start_date, end_date):
+    extracted_data = []
+    for data in data_list:
+        if isinstance(data["date"], datetime):
+          if start_date <= data["date"].date() <= end_date:
+              extracted_data.append(data)
+        else:
+          if start_date <= data["date"] <= end_date:
+              extracted_data.append(data)
+    return extracted_data
+  
 def get_future_date(interval):
     end_date = date.today()
     if interval == 'thisweek':
@@ -74,12 +85,12 @@ def get_gexpenses(expenses):
 def add_sales_by_dates(sales):
   date_sums = {}
   for sale in sales: #Sum up the prices for each date
-    if sale['sale_date'] in date_sums:
-      date_sums[sale['sale_date']] += sale['sale_amt']
+    if sale['date'] in date_sums:
+      date_sums[sale['date']] += sale['sale_amt']
     else:
-      date_sums[sale['sale_date']] = sale['sale_amt']
+      date_sums[sale['date']] = sale['sale_amt']
     #New list of dictionaries with the summed prices for each date
-  output = [{'sale_date': sale_date, 'sale_amt': sale_amt} for sale_date, sale_amt in date_sums.items()]
+  output = [{'date': date.strftime("%m/%d/%Y"), 'sale_amt': sale_amt} for date, sale_amt in date_sums.items()]
   return output
 
 def get_cogs(products, sales):
@@ -98,7 +109,7 @@ def add_expenses_by_dates(expenses):
     else:
       date_sums[expense['date']] = expense['eprice']
     #New list of dictionaries with the summed prices for each date
-  output = [{'date': date, 'eprice': eprice} for date, eprice in date_sums.items()]
+  output = [{'date': date.strftime("%m/%d/%Y"), 'eprice': eprice} for date, eprice in date_sums.items()]
   return output
 
 def add_expenses_by_category(expenses):
@@ -115,7 +126,7 @@ def add_expenses_by_category(expenses):
 def group_sales_by_month(sales):
   sales_by_month = {}
   for sale in sales:
-      date = sale['sale_date']
+      date = sale['date']
       month = date.strftime('%Y-%m')
       if month in sales_by_month:
           sales_by_month[month]['price'] += sale['sale_amt']
@@ -179,27 +190,6 @@ def top_products(sales):
     # Return separate lists of dictionaries for the top products by quantity and profit
     return (sorted_products_qty, sorted_products_profit)
 
-def extract_interval_sales_data(data_list, start_date, end_date):
-    extracted_data = []
-    for data in data_list:
-        if start_date <= data["sale_date"] <= end_date:
-            extracted_data.append(data)
-    return extracted_data
-
-def extract_interval_expenses_data(data_list, start_date, end_date):
-    extracted_data = []
-    for data in data_list:
-        if start_date <= data["date"] <= end_date:
-            extracted_data.append(data)
-    return extracted_data
-
-def extract_interval_products_data(data_list, start_date, end_date):
-    extracted_data = []
-    for data in data_list:
-        if start_date <= data["date"] <= end_date:
-            extracted_data.append(data)
-    return extracted_data
-
 def add_deleted_sale_qty_to_inventory(products, product, sale_qty):
     for prod in products: # To update qty in inventory
       if str(prod["pname"]) == str(product):
@@ -215,7 +205,7 @@ def get_unpaid_customers(sales):
         unpaid_customers.append(
           {
             'customer': sale['customer'], 
-            'sale_date': sale['sale_date'],
+            'date': sale['date'],
             'product': sale['product'],
             'sale_qty': sale['sale_qty'],
             'sale_amt': sale['sale_amt']
@@ -236,7 +226,7 @@ def add_amt_unpaid_customers(sales):
 
 def get_latest_credits(ledgers):
     result = {}
-    for ledger in sorted(ledgers, key=lambda x: x['ttime'], reverse=True):
+    for ledger in sorted(ledgers, key=lambda x: x['date'], reverse=True):
         wname, credit = ledger['wname'], ledger['credit']
         if wname not in result:
             result[wname] = credit
@@ -245,20 +235,23 @@ def get_latest_credits(ledgers):
 # ------------------------------ Revenue Prediction ------------------------------
 
 def predict_sales(previous_sales_data, interval):
+    if len(previous_sales_data) == 0:
+      return 0,0
+
     # Convert the previous sales data to a Pandas dataframe
     sales_df = pd.DataFrame(previous_sales_data)
     predict_date = get_future_date(interval)
 
     # Convert the sale_date column to datetime object
-    sales_df['sale_date'] = pd.to_datetime(sales_df['sale_date'])
+    sales_df['date'] = pd.to_datetime(sales_df['date'])
 
     # Group the sales data by date and calculate the total sale amount for each day
-    sale_amt_df = sales_df.groupby('sale_date')['sale_amt'].sum().reset_index()
+    sale_amt_df = sales_df.groupby('date')['sale_amt'].sum().reset_index()
 
     # Split the date into year, month and day for easier analysis
-    sale_amt_df['year'] = sale_amt_df['sale_date'].dt.year
-    sale_amt_df['month'] = sale_amt_df['sale_date'].dt.month
-    sale_amt_df['day'] = sale_amt_df['sale_date'].dt.day
+    sale_amt_df['year'] = sale_amt_df['date'].dt.year
+    sale_amt_df['month'] = sale_amt_df['date'].dt.month
+    sale_amt_df['day'] = sale_amt_df['date'].dt.day
 
     # Create a linear regression model to predict future sales
     X = sale_amt_df[['year', 'month', 'day']]
@@ -267,11 +260,11 @@ def predict_sales(previous_sales_data, interval):
     model.fit(X, y)
 
     # Create a dataframe with dates up to the predict_date
-    date_range = pd.date_range(start=sale_amt_df['sale_date'].min(), end=predict_date, freq='D')
-    future_sales_df = pd.DataFrame({'sale_date': date_range})
-    future_sales_df['year'] = future_sales_df['sale_date'].dt.year
-    future_sales_df['month'] = future_sales_df['sale_date'].dt.month
-    future_sales_df['day'] = future_sales_df['sale_date'].dt.day
+    date_range = pd.date_range(start=sale_amt_df['date'].min(), end=predict_date, freq='D')
+    future_sales_df = pd.DataFrame({'date': date_range})
+    future_sales_df['year'] = future_sales_df['date'].dt.year
+    future_sales_df['month'] = future_sales_df['date'].dt.month
+    future_sales_df['day'] = future_sales_df['date'].dt.day
 
     # Predict sales for each date up to the predict_date
     future_sales_df['predicted_sales'] = model.predict(future_sales_df[['year', 'month', 'day']])
@@ -283,7 +276,7 @@ def predict_sales(previous_sales_data, interval):
 
     # Calculate the total predicted revenue and profit up to the predict_date
     predict_date = pd.to_datetime(predict_date) # Convert predict_date to a Pandas datetime object
-    filtered_sales_df = future_sales_df[future_sales_df['sale_date'] <= predict_date]
+    filtered_sales_df = future_sales_df[future_sales_df['date'] <= predict_date]
     total_predicted_revenue = round(filtered_sales_df.iloc[-1]['predicted_revenue'],2)
     total_predicted_profit = round(filtered_sales_df.iloc[-1]['predicted_profit'],2)
 

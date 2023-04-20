@@ -1,22 +1,22 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <title>Hisaab: Expenses</title>
+    <title>Hisaab: Replacements</title>
     <link rel="shortcut icon" href="/static/growth.svg">
     {% include 'bootstrap.html' %}
     <style>
-      .sidebar #expenses {
+      .sidebar #replacements{
         color: #2470dc;
       }
     </style>
-    
     <link href="/static/css/dashboard.css" rel="stylesheet">
   </head>
+  
   <body>
     {% include 'dash_nav.html' %} 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="dashboardSection">
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Expenses</h1>
+        <h1 class="h2">Replacements</h1>
         <div class="btn-toolbar mb-2 mb-md-0">
           <div class="btn-group me-2">
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="downloadAsXLSX()">Share</button>
@@ -28,12 +28,12 @@
               <span id="dropdownSelected">Today</span>
             </button>
             <ul class="dropdown-menu" id="dropdownMenu">
-              <li><a class="dropdown-item" href="/expenses/today">Today</a></li>
-              <li><a class="dropdown-item" href="/expenses/thisweek">This week</a></li>
-              <li><a class="dropdown-item" href="/expenses/thismonth">This month</a></li>
-              <li><a class="dropdown-item" href="/expenses/thisquarter">This quarter</a></li>
-              <li><a class="dropdown-item" href="/expenses/thisyear">This year</a></li>
-              <li><a class="dropdown-item" href="/expenses/alltime">All time</a></li>
+              <li><a class="dropdown-item" href="/replacements/today">Today</a></li>
+              <li><a class="dropdown-item" href="/replacements/thisweek">This week</a></li>
+              <li><a class="dropdown-item" href="/replacements/thismonth">This month</a></li>
+              <li><a class="dropdown-item" href="/replacements/thisquarter">This quarter</a></li>
+              <li><a class="dropdown-item" href="/replacements/thisyear">This year</a></li>
+              <li><a class="dropdown-item" href="/replacements/alltime">All time</a></li>
             </ul>
           </div>
         </div>
@@ -45,53 +45,55 @@
         </div>
       </div>
       <!-- Tables -->
-      <h2>Expenses</h2>
-      <!-- Add transaaction form -->
-      <form class="mb-5 mt-4" action="/add_expense" method="POST">
+      <h2>Replacements</h2>
+      <!-- Add to Inventory Form -->
+      <form class="mb-5 mt-4" action="/add_replacement" method="POST">
         <div class="mx-auto row">
           <div class="col-md-2">
-            <select id="option" name="type" class="form-control">
-              <option value="Logistics">Logistics</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Salary">Salary</option>
-              <option value="Electricity">Electricity</option>
-              <option value="Water">Water</option>
-              <option value="Warranty Repairs">Warranty Repairs</option>
+            <select id="option" name="pname" class="form-control">
+              {% for product in products %}
+              <option value="{{ product['pname'] }}">
+                {{ product['pname'] }}
+              </option>
+              {% endfor %}
             </select>
           </div>
           <div class="col-md-2">
-              <input type="text" class="form-control" name="eprice" placeholder="Expense (INR)">
+              <input type="text" class="form-control" name="qty" placeholder="Quantity">
           </div>
           <div class="col-md-3">
-            <button class="btn btn-success" type="submit">Add Expense</button>
+            <button class="btn btn-success" type="submit">Add Replacement</button>
           </div>
         </div>
       </form>
-      <!-- Show expenses -->
+      
+      <!-- Show Inventory -->
       <div class="card mb-4 rounded-3 shadow-sm">
         <div class="card-body">
-          <div class="table-responsive">
+          <div class="table-responsive mb-3">
             <table class="table table-sm">
               <thead>
                 <tr>
                   <th scope="col">ID</th>
-                  <th scope="col">Date</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Expense (INR)</th>
+                  <th scope="col">Replace Date</th>
+                  <th scope="col">Product Name</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">Amount (INR)</th>
                   <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {% for expense in expenses %}
+                {% for replacement in replacements %}
                 <tr>
-                  <td scope="col" contenteditable="false">{{expense['id']}}</td>
-                  <td scope="col" contenteditable="false">{{expense['date']}}</td>
-                  <td scope="col" contenteditable="false">{{expense['type']}}</td>
-                  <td scope="col" contenteditable="false">{{expense['eprice']}}</td>
+                  <td scope="col" contenteditable="false">{{replacement['rid']}}</td>
+                  <td scope="col" contenteditable="false">{{replacement['date']}}</td>
+                  <td scope="col" contenteditable="false">{{replacement['pname']}}</td>
+                  <td scope="col" contenteditable="false">{{replacement['qty']}}</td>
+                  <td scope="col" contenteditable="false">{{replacement['amt']}}</td>
                   <td>
                     <a class="btn btn-outline-primary" href="" role="button" onclick="editRow(this)">Update</a>
                     <a class="btn btn-outline-success d-none" href="" role="button" onclick="saveRow(this)">Save</a>
-                    <a class="btn btn-outline-danger" href="/expenses/{{expense['id']}}/delete" role="button">Delete</a>
+                    <a class="btn btn-outline-danger" href="/replacements/{{replacement['rid']}}/delete" role="button">Delete</a>
                   </td>
                 </tr>
                 {% endfor %}
@@ -101,10 +103,8 @@
         </div>
       </div>
     </main>
-      </div>
-    </div>
     {% include 'script.html' %}
     {% include 'chart.html' %}
-    <script src="/static/js/expenses.js"></script>
+    <script src="/static/js/replacements.js"></script>
   </body>
 </html>

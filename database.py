@@ -83,6 +83,16 @@ def load_expenses(uid):
         expenses.append(row_dic)
     return expenses
 
+def load_replacements(uid):
+  with engine.connect() as conn:
+    query = text("SELECT * from replacements WHERE uid = :uid")
+    result = conn.execute(query, {'uid': uid})
+    replacements = []
+    for row in result.fetchall():
+        row_dic = dict(zip(result.keys(), row))
+        replacements.append(row_dic)
+    return replacements
+
 #------------------------------- Products -------------------------------
 def add_product(pname, pcp, psp, pqty, uid):
   with engine.connect() as conn:
@@ -143,11 +153,11 @@ def add_ledger(wname, credit, debit, uid):
     if debit == "":
       debit = 0
     
-    query = text("INSERT INTO ledger(wname, ttime, credit, debit, uid) VALUES (:wname, :ttime, :credit, :debit, :uid)")
+    query = text("INSERT INTO ledger(wname, date, credit, debit, uid) VALUES (:wname, :date, :credit, :debit, :uid)")
     conn.execute(query,
                  {
                   'wname': wname, 
-                  'ttime': datetime.datetime.now(), 
+                  'date': datetime.datetime.now(), 
                   'credit': credit, 
                   'debit': debit,
                   'uid': uid
@@ -166,12 +176,12 @@ def update_ledger(wid, wname, ttime, credit, debit):
       credit = 0
     elif debit == "":
       debit = 0
-    query = (text("UPDATE ledger SET wname =:wname, ttime =:ttime, credit =:credit, debit =:debit WHERE wid = :wid"))
+    query = (text("UPDATE ledger SET wname =:wname, date =:date, credit =:credit, debit =:debit WHERE wid = :wid"))
     conn.execute(query,
                  {
                   'wid': wid, 
                   'wname': wname, 
-                  'ttime': ttime, 
+                  'date': date, 
                   'credit': credit, 
                   'debit': debit
                  }
@@ -189,11 +199,11 @@ def add_sale(pname, qty, price, customer, status, uid):
     profit = amount - (int(qty) * int(cp))
     if customer == "" and status == "Paid":
       customer = "CASH"
-    query= text("INSERT INTO sales(product, sale_date, sale_qty, sale_price, sale_amt, sale_profit,  customer, status, uid) VALUES (:product, :sale_date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer, :status, :uid)")
+    query= text("INSERT INTO sales(product, date, sale_qty, sale_price, sale_amt, sale_profit,  customer, status, uid) VALUES (:product, :date, :sale_qty, :sale_price, :sale_amt, :sale_profit, :customer, :status, :uid)")
     conn.execute(query,
                  {
                   'product': pname, 
-                  'sale_date': datetime.datetime.now(), 
+                  'date': datetime.datetime.now(), 
                   'sale_qty': qty, 
                   'sale_price': price,
                   'sale_amt': amount,
@@ -220,7 +230,7 @@ def delete_sale(id, pname, pqty):
     conn.execute(text("DELETE FROM sales WHERE id = :val"), {'val': id})
     return True
 
-def update_sale(id, sale_date, product, sale_qty, 
+def update_sale(id, date, product, sale_qty, 
                 sale_price, sale_amt, sale_profit, customer, status, uid):
   with engine.connect() as conn:
     sales = load_sales(uid)
@@ -236,11 +246,11 @@ def update_sale(id, sale_date, product, sale_qty,
                   }
     )
     # Updating Sales 
-    query2 = (text("UPDATE sales SET id = :id, sale_date = :sale_date, product = :product, sale_qty = :sale_qty, sale_price = :sale_price, sale_amt = :sale_amt, sale_profit = :sale_profit, customer =:customer, status = :status WHERE id = :id AND uid = :uid"))
+    query2 = (text("UPDATE sales SET id = :id, date = :date, product = :product, sale_qty = :sale_qty, sale_price = :sale_price, sale_amt = :sale_amt, sale_profit = :sale_profit, customer =:customer, status = :status WHERE id = :id AND uid = :uid"))
     conn.execute(query2,
                  {
                   'id': id,
-                  'sale_date': sale_date, 
+                  'date': date, 
                   'product': product, 
                   'sale_qty': sale_qty, 
                   'sale_price': sale_price,
@@ -282,6 +292,47 @@ def update_expense(id, date, type, eprice):
                   'date': date, 
                   'type': type, 
                   'eprice': eprice
+                 }
+    )
+    return True
+
+#------------------------------- Replacements -------------------------------
+
+def add_replacement(pname, qty, uid):
+  with engine.connect() as conn:
+    #to get cp
+    products = load_inventory(uid)
+    cp = get_cp(products, pname)
+    amt = int(qty) * int(cp)
+    query = text("INSERT INTO replacements(date, pname, qty, amt, uid) VALUES (:date, :pname, :qty, :amt, :uid)")
+    conn.execute(query,
+                 {
+                  'date': datetime.datetime.now(),
+                  'pname': pname,
+                  'qty': qty,
+                  'amt': amt,
+                  'uid': uid
+                 }
+    )
+    return True
+
+def delete_replacement(id):
+  with engine.connect() as conn:
+    conn.execute(text("DELETE FROM replacements WHERE rid = :val"), {'val': id})
+    return True
+
+def update_replacement(pname, qty, uid):
+  with engine.connect() as conn:
+    #To update amount
+    products = load_inventory(uid)
+    cp = get_cp(products, pname)
+    amt = int(qty) * int(cp)
+    query = (text("UPDATE replacements SET qty =:qty, amt=:amt WHERE pname = :pname"))
+    conn.execute(query,
+                 {
+                  'pname': pname,
+                  'qty': qty,
+                  'amt': amt
                  }
     )
     return True

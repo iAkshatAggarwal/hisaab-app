@@ -97,7 +97,7 @@
                 {% for sale in sales %}
                 <tr>
                   <td scope="col" contenteditable="false">{{sale['id']}}</td>
-                  <td scope="col" contenteditable="false">{{sale['sale_date']}}</td>
+                  <td scope="col" contenteditable="false">{{sale['date']}}</td>
                   <td scope="col" contenteditable="false">{{sale['product']}}</td>
                   <td scope="col" contenteditable="false">{{sale['sale_qty']}}</td>
                   <td scope="col" contenteditable="false">{{sale['sale_price']}}</td>
@@ -108,7 +108,7 @@
                   <td>
                     <a class="btn btn-outline-primary" href="" role="button" onclick="editRow(this)">Update</a>
                     <a class="btn btn-outline-success d-none" href="" role="button" onclick="saveRow(this)">Save</a>
-                    <a class="btn btn-outline-danger" role="button" onclick="deleteRow(this)" data-sale-id="{{sale['id']}}" data-product="{{sale['product']}}" data-sale-qty="{{sale['sale_qty']}}" data-sale-date="{{sale['sale_date']}}">
+                    <a class="btn btn-outline-danger" role="button" onclick="deleteRow(this)" data-sale-id="{{sale['id']}}" data-product="{{sale['product']}}" data-sale-qty="{{sale['sale_qty']}}" data-sale-date="{{sale['date']}}">
                       Delete
                     </a>
                   </td>

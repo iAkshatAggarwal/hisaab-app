@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from utils import authenticate_user, check_existing_user, get_interval_dates, make_chart, add_sales_by_dates , get_cogs, get_grevenue_gmargin, get_gexpenses, add_expenses_by_dates, add_expenses_by_category, group_sales_by_month, top_products, extract_interval_sales_data, extract_interval_expenses_data, add_deleted_sale_qty_to_inventory, predict_sales, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
-from database import add_user, load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, add_product, delete_product, update_product, add_wholesaler, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense
+from utils import authenticate_user, check_existing_user, get_interval_dates, make_chart, add_sales_by_dates , get_cogs, get_grevenue_gmargin, get_gexpenses, add_expenses_by_dates, add_expenses_by_category, group_sales_by_month, top_products, extract_interval_data, add_deleted_sale_qty_to_inventory, predict_sales, get_unpaid_customers, add_amt_unpaid_customers, get_latest_credits
+from database import add_user, load_users, load_inventory, load_sales, load_wholesalers, load_ledgers, load_expenses, load_replacements, add_product, delete_product, update_product, add_wholesaler, add_ledger, delete_ledger, update_ledger, add_sale, delete_sale, update_sale, add_expense, delete_expense, update_expense, add_replacement, delete_replacement, update_replacement
 
 app = Flask(__name__)
 app.secret_key = os.environ['SECRET_KEY']
@@ -72,8 +72,8 @@ def dashboard(interval="today"):
       # Assigning interval dates
       start_date, end_date = get_interval_dates(interval, sales)
       #Extract Sales data for given interval
-      interval_sales = extract_interval_sales_data(sales, start_date, end_date)
-      interval_expenses = extract_interval_expenses_data(expenses, start_date, end_date)
+      interval_sales = extract_interval_data(sales, start_date, end_date)
+      interval_expenses = extract_interval_data(expenses, start_date, end_date)
       #Gross Revenue and Gross Margin
       g_revenue , g_margin = get_grevenue_gmargin(interval_sales)
       if g_revenue != 0:
@@ -99,7 +99,7 @@ def dashboard(interval="today"):
       monthly_sales_data = make_chart(monthly_sales, 'month', 'price')
       # For Daily Sales Chart
       daily_sales = add_sales_by_dates(interval_sales) #adding amount for same dates 
-      daily_sales_data = make_chart(daily_sales, 'sale_date', 'sale_amt')
+      daily_sales_data = make_chart(daily_sales, 'date', 'sale_amt')
       #For Expenses by Category Chart
       category_expenses = add_expenses_by_category(interval_expenses)
       category_expenses_data = make_chart(category_expenses, 'type', 'eprice')
@@ -170,8 +170,8 @@ def mod_prod():
 
 #------------------------------- Ledgers -------------------------------
 
-@app.route('/ledgers')
-def show_ledgers():
+@app.route('/ledgers/<interval>')
+def show_ledgers(interval="today"):
     user_id = session.get('user_id')
     company = session.get('company')
     if user_id is None:
@@ -181,11 +181,15 @@ def show_ledgers():
       ledgers = load_ledgers(user_id)
       wholesalers = load_wholesalers(user_id)
       result = get_latest_credits(ledgers)
+      # Assigning interval dates
+      start_date, end_date = get_interval_dates(interval, ledgers)
+      #Extract expenses data for given interval
+      interval_ledgers = extract_interval_data(ledgers, start_date, end_date)
       #For chart
       data = make_chart(result, 'wname', 'credit')
       return render_template('ledger.html',
                              company=company,
-                             ledgers=ledgers,
+                             ledgers=interval_ledgers,
                              wholesalers=wholesalers,
                              data=data)
 
@@ -236,10 +240,10 @@ def show_sales(interval = "thisweek"):
       # Assigning interval dates
       start_date, end_date = get_interval_dates(interval, sales)
       #Extract Sales data for given interval
-      interval_sales = extract_interval_sales_data(sales, start_date, end_date)
+      interval_sales = extract_interval_data(sales, start_date, end_date)
       #For chart
       output = add_sales_by_dates(interval_sales) #adding amount for same dates 
-      data = make_chart(output, 'sale_date', 'sale_amt')
+      data = make_chart(output, 'date', 'sale_amt')
       return render_template('sales.html',
                              company=company,
                              products = products,
@@ -272,7 +276,7 @@ def del_sales(id):
 def mod_sale():
     user_id = session.get('user_id')
     if update_sale(request.form.get('id'),
-                request.form.get('sale_date'),
+                request.form.get('date'),
                 request.form.get('product'),
                 request.form.get('sale_qty'),
                 request.form.get('sale_price'),
@@ -284,8 +288,8 @@ def mod_sale():
       return redirect("/sales/thisweek")
 
 #------------------------------- Expenses -------------------------------
-@app.route('/expenses')
-def show_expenses():
+@app.route('/expenses/<interval>')
+def show_expenses(interval = "thisweek"):
     user_id = session.get('user_id')
     company = session.get('company')
     if user_id is None:
@@ -293,11 +297,15 @@ def show_expenses():
         return redirect(url_for('login'))
     else:
       expenses = load_expenses(user_id)
-      output = add_expenses_by_dates(expenses)
+      # Assigning interval dates
+      start_date, end_date = get_interval_dates(interval, expenses)
+      #Extract expenses data for given interval
+      interval_expenses = extract_interval_data(expenses, start_date, end_date)
+      output = add_expenses_by_dates(interval_expenses)
       data = make_chart(output, 'date', 'eprice')
       return render_template('expenses.html',
                               company=company,
-                              expenses=expenses,
+                              expenses=interval_expenses,
                               data=data)
 
 @app.route("/add_expense", methods=["GET", "POST"])
@@ -306,12 +314,12 @@ def add_ex():
     if add_expense(request.form["type"],
                   request.form["eprice"],
                   user_id):
-      return redirect("/expenses")
+      return redirect("/expenses/thisweek")
 
 @app.route("/expenses/<id>/delete")
 def del_ex(id):
     if delete_expense(id):
-      return redirect("/expenses") 
+      return redirect("/expenses/thisweek") 
 
 @app.route("/expenses/update", methods=["GET", "POST"])
 def mod_expense():
@@ -319,7 +327,7 @@ def mod_expense():
                       request.form.get('date'),
                       request.form.get('type'),
                       request.form.get('eprice')):
-      return redirect('/expenses')
+      return redirect('/expenses/thisweek')
 
 #------------------------------- Customers -------------------------------
 @app.route('/customers')
@@ -340,6 +348,50 @@ def show_customers():
                              unpaid_customers=unpaid_customers,
                              data=data)
 
+#------------------------------- Replacements -------------------------------
+@app.route('/replacements/<interval>')
+def show_replacements(interval="today"):
+    user_id = session.get('user_id')
+    company = session.get('company')
+    if user_id is None:
+        # user is not authenticated, redirect to login page
+        return redirect(url_for('login'))
+    else:
+      replacements = load_replacements(user_id)
+      products = load_inventory(user_id)
+      # Assigning interval dates
+      start_date, end_date = get_interval_dates(interval, replacements)
+      #Extract expenses data for given interval
+      interval_replacements = extract_interval_data(replacements, start_date, end_date)
+      #For chart
+      data = make_chart(replacements, 'pname', 'qty')
+      return render_template('replacements.html',
+                             company=company,
+                             products=products,
+                             replacements=interval_replacements,
+                             data=data)
+
+@app.route("/add_replacement", methods=["GET", "POST"])
+def add_repl():
+    user_id = session.get('user_id')
+    if add_replacement(request.form["pname"],
+                  request.form["qty"],
+                  user_id):
+      return redirect("/replacements/thisweek")
+
+@app.route("/replacements/<rid>/delete")
+def del_repl(rid):
+    if delete_replacement(rid):
+      return redirect("/replacements/thisweek")
+
+@app.route("/replacements/update", methods=["GET", "POST"])
+def mod_repl():
+    user_id = session.get('user_id')
+    if update_replacement(request.form.get('pname'), 
+                          request.form.get('qty'), 
+                          user_id):
+      return redirect('/replacements/thisweek')
+      
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
