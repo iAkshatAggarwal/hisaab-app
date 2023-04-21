@@ -200,7 +200,7 @@ def add_wsaler():
                   request.form["wcontact"],
                   request.form["waddress"],
                   user_id):
-      return redirect("/ledgers")
+      return redirect("/ledgers/thisweek")
 
 @app.route("/add_ledger", methods=["GET", "POST"])
 def add_led():
@@ -209,21 +209,21 @@ def add_led():
                   request.form["credit"],
                   request.form["debit"],
                   user_id):
-      return redirect("/ledgers")
+      return redirect("/ledgers/thisweek")
 
 @app.route("/ledgers/<wid>/delete")
 def del_led(wid):
     if delete_ledger(wid):
-      return redirect("/ledgers")  
+      return redirect("/ledgers/thisweek")  
 
 @app.route("/ledgers/update", methods=["GET", "POST"])
 def mod_led():
     if update_ledger(request.form.get('wid'),
                       request.form.get('wname'),
-                      request.form.get('ttime'),
+                      request.form.get('date'),
                       request.form.get('credit'),
                       request.form.get('debit')):
-      return redirect('/ledgers')
+      return redirect('/ledgers/thisweek')
 
 #------------------------------- Sales -------------------------------
 

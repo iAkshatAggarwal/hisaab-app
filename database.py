@@ -45,7 +45,7 @@ def load_inventory(uid):
 
 def load_sales(uid):
   with engine.connect() as conn:
-    query = text("SELECT * from sales WHERE uid = :uid")
+    query = text("SELECT * from sales WHERE uid = :uid ORDER BY date DESC")
     result = conn.execute(query, {'uid': uid})
     sales = []
     for row in result.fetchall():
@@ -65,7 +65,7 @@ def load_wholesalers(uid):
 
 def load_ledgers(uid):
   with engine.connect() as conn:
-    query = text("SELECT * from ledger WHERE uid = :uid")
+    query = text("SELECT * from ledger WHERE uid = :uid ORDER BY date DESC")
     result = conn.execute(query, {'uid': uid})
     ledgers = []
     for row in result.fetchall():
@@ -75,7 +75,7 @@ def load_ledgers(uid):
 
 def load_expenses(uid):
   with engine.connect() as conn:
-    query = text("SELECT * from expenses WHERE uid = :uid")
+    query = text("SELECT * from expenses WHERE uid = :uid ORDER BY date DESC")
     result = conn.execute(query, {'uid': uid})
     expenses = []
     for row in result.fetchall():
@@ -85,7 +85,7 @@ def load_expenses(uid):
 
 def load_replacements(uid):
   with engine.connect() as conn:
-    query = text("SELECT * from replacements WHERE uid = :uid")
+    query = text("SELECT * from replacements WHERE uid = :uid ORDER BY date DESC")
     result = conn.execute(query, {'uid': uid})
     replacements = []
     for row in result.fetchall():
@@ -144,7 +144,7 @@ def add_ledger(wname, credit, debit, uid):
     ledgers = load_ledgers(uid)
     ledger_subset = [ledger for ledger in ledgers if ledger['wname'] == wname]
     if len(ledger_subset) > 0:
-        latest_ledger = sorted(ledger_subset, key=lambda x: x['ttime'])[-1]
+        latest_ledger = sorted(ledger_subset, key=lambda x: x['date'])[-1]
         credit = latest_ledger['credit']
         credit -= int(debit)
     for ledger in ledgers:
@@ -170,7 +170,7 @@ def delete_ledger(id):
     conn.execute(text("DELETE FROM ledger WHERE wid = :val"), {'val': id})
     return True
 
-def update_ledger(wid, wname, ttime, credit, debit):
+def update_ledger(wid, wname, date, credit, debit):
   with engine.connect() as conn:
     if credit == "":
       credit = 0

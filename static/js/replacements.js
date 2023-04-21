@@ -18,7 +18,7 @@ function editRow(button) {
         
           // Get the updated values of each cell
           let rid = row.cells[0].textContent;
-          let rdate = row.cells[1].textContent;
+          let date = row.cells[1].textContent;
           let pname = row.cells[2].textContent;
           let qty = row.cells[3].textContent;
           let amt = row.cells[4].textContent;
@@ -44,5 +44,5 @@ function editRow(button) {
               }
             }
           };
-        xhr.send(`rid=${rid}&rdate=${rdate}&pname=${pname}&qty=${qty}&amt=${amt}`);
+        xhr.send(`rid=${rid}&date=${date}&pname=${pname}&qty=${qty}&amt=${amt}`);
 }

@@ -19,7 +19,7 @@ function saveRow(button) {
     // Get the updated values of each cell
     let wid = row.cells[0].textContent;
     let wname = row.cells[1].textContent;
-    let ttime = row.cells[2].textContent;
+    let date = row.cells[2].textContent;
     let credit = row.cells[3].textContent;
     let debit = row.cells[4].textContent;
   
@@ -44,5 +44,5 @@ function saveRow(button) {
         }
       }
     };
-  xhr.send(`wid=${wid}&wname=${wname}&ttime=${ttime}&credit=${credit}&debit=${debit}`);
+  xhr.send(`wid=${wid}&wname=${wname}&date=${date}&credit=${credit}&debit=${debit}`);
 }

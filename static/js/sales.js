@@ -18,7 +18,7 @@ function saveRow(button) {
   
     // Get the updated values of each cell
     let id = row.cells[0].textContent;
-    let sale_date = row.cells[1].textContent;
+    let date = row.cells[1].textContent;
     let product = row.cells[2].textContent;
     let sale_qty = row.cells[3].textContent;
     let sale_price = row.cells[4].textContent;
@@ -48,7 +48,7 @@ function saveRow(button) {
         }
       }
     };
-  xhr.send(`id=${id}&sale_date=${sale_date}&product=${product}&sale_qty=${sale_qty}&sale_price=${sale_price}&sale_amt=${sale_amt}&sale_profit=${sale_profit}&customer=${customer}&status=${status}`);
+  xhr.send(`id=${id}&date=${date}&product=${product}&sale_qty=${sale_qty}&sale_price=${sale_price}&sale_amt=${sale_amt}&sale_profit=${sale_profit}&customer=${customer}&status=${status}`);
 }
 
 function deleteRow(button) {

@@ -90,7 +90,7 @@ def add_sales_by_dates(sales):
     else:
       date_sums[sale['date']] = sale['sale_amt']
     #New list of dictionaries with the summed prices for each date
-  output = [{'date': date.strftime("%m/%d/%Y"), 'sale_amt': sale_amt} for date, sale_amt in date_sums.items()]
+  output = [{'date': date.strftime("%d/%m/%Y"), 'sale_amt': sale_amt} for date, sale_amt in date_sums.items()]
   return output
 
 def get_cogs(products, sales):
@@ -109,7 +109,7 @@ def add_expenses_by_dates(expenses):
     else:
       date_sums[expense['date']] = expense['eprice']
     #New list of dictionaries with the summed prices for each date
-  output = [{'date': date.strftime("%m/%d/%Y"), 'eprice': eprice} for date, eprice in date_sums.items()]
+  output = [{'date': date.strftime("%d/%m/%Y"), 'eprice': eprice} for date, eprice in date_sums.items()]
   return output
 
 def add_expenses_by_category(expenses):
