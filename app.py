@@ -88,7 +88,7 @@ def dashboard(interval="today"):
       #Inventory Cost
       inventory_cost = sum(product['pqty'] * product['pcp'] for product in products)
       #EBITDA i.e Earning before Interest, Taxes, Depreciation and Amortization
-      if n_revenue != 0:
+      if n_revenue > 0:
         ebitda = "{:.2%}".format((n_revenue/g_revenue))
       else:
         ebitda = 0
