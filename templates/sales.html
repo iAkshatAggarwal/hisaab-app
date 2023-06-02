@@ -81,6 +81,7 @@
             <table class="table table-sm">
               <thead>
                 <tr>
+                  <th scope="col" class="d-none">Table ID</th>
                   <th scope="col">ID</th>
                   <th scope="col">Date</th>
                   <th scope="col">Product Name</th>
@@ -96,7 +97,8 @@
               <tbody>
                 {% for sale in sales %}
                 <tr>
-                  <td scope="col" contenteditable="false">{{sale['id']}}</td>
+                  <td scope="col" contenteditable="false" class="d-none">{{sale['id']}}</td>
+                  <td scope="col" contenteditable="false">{{loop.index}}</td>
                   <td scope="col" contenteditable="false">{{sale['date']}}</td>
                   <td scope="col" contenteditable="false">{{sale['product']}}</td>
                   <td scope="col" contenteditable="false">{{sale['sale_qty']}}</td>

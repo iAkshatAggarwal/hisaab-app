@@ -9,10 +9,8 @@
         color: #2470dc;
       }
     </style>
-    
     <link href="/static/css/dashboard.css" rel="stylesheet">
   </head>
-  
   <body>
     {% include 'dash_nav.html' %} 
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="dashboardSection">
@@ -53,7 +51,6 @@
           </div>
         </div>
       </form>
-      
       <!-- Show Inventory -->
       <div class="card mb-4 rounded-3 shadow-sm">
         <div class="card-body">
@@ -61,6 +58,7 @@
             <table class="table table-sm">
               <thead>
                 <tr>
+                  <th scope="col" class="d-none">Table ID</th>
                   <th scope="col">ID</th>
                   <th scope="col">Product Name</th>
                   <th scope="col">Quantity</th>
@@ -72,7 +70,8 @@
               <tbody>
                 {% for product in products %}
                 <tr>
-                  <td scope="col" contenteditable="false">{{product['pid']}}</td>
+                  <td scope="col" contenteditable="false" class="d-none">{{product['pid']}}</td>
+                  <td scope="col" contenteditable="false">{{loop.index}}</td>
                   <td scope="col" contenteditable="false">{{product['pname']}}</td>
                   <td scope="col" contenteditable="false">{{product['pqty']}}</td>
                   <td scope="col" contenteditable="false">{{product['pcp']}}</td>

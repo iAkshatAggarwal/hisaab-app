@@ -11,7 +11,7 @@ def authenticate_user(users, username, password):
 
 def check_existing_user(users, username, company):
   for user in users:
-    if user['uname'] == username or user['company'] == company:
+    if user['uname'] == username:
       return False
   return True
 
